@@ -29,6 +29,7 @@ class User(Base):
     company_name = Column(String(255), nullable=True)
     role = Column(String(50), nullable=False, default="creator") # creator, manager, reviewer, admin
     is_admin = Column(Integer, default=0) # 1 if admin
+    is_approved = Column(Integer, default=0) # 1 if approved by developer, 0 if pending
     subscription_tier = Column(String(50), default="starter") # starter, pro, enterprise
     subscription_status = Column(String(50), default="active") # active, trialing, canceled
     subscription_period = Column(String(50), default="monthly") # monthly, annual
@@ -58,6 +59,15 @@ class Subscriber(Base):
     id = Column(String(36), primary_key=True, default=gen_uuid)
     email = Column(String(255), unique=True, nullable=False, index=True)
     source = Column(String(100), default="landing_page")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class AccessWhitelist(Base):
+    __tablename__ = "access_whitelist"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    granted_by = Column(String(255), nullable=True) # Developer email who granted access
+    notes = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class SubscriptionTransaction(Base):

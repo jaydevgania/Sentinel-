@@ -125,25 +125,48 @@ def test_public_endpoints():
 
 def test_auth_and_subscriptions():
     """
-    Test customer account creation, login, and subscription upgrade
+    Verify customer authentication access control & subscription checkout:
+    1. Unauthorized customer registration blocked (HTTP 403)
+    2. Developer grants customer access via POST /api/admin/grant-access
+    3. Approved customer logs in successfully (HTTP 200)
+    4. Subscription upgraded to Pro tier
     """
     import uuid
     unique_email = f"customer_{uuid.uuid4().hex[:6]}@brandcorp.com"
-    reg_res = client.post("/api/auth/register", json={
+    payload = {
         "name": "Alex Mercer",
         "email": unique_email,
         "password": "Password123!",
         "company_name": "Mercer Brands",
         "brand_name": "Mercer Coffee",
         "plan": "starter"
+    }
+
+    # 1. Unapproved customer registration is blocked
+    unapproved_res = client.post("/api/auth/register", json=payload)
+    assert unapproved_res.status_code == 403
+    assert "Access Restricted" in unapproved_res.json()["detail"]
+
+    # 2. Developer grants access
+    grant_res = client.post("/api/admin/grant-access", json={
+        "email": unique_email,
+        "notes": "Approved customer account"
     })
-    assert reg_res.status_code == 200
-    reg_data = reg_res.json()
+    assert grant_res.status_code == 200
+    assert grant_res.json()["status"] == "success"
+
+    # 3. Approved customer can now login
+    login_res = client.post("/api/auth/login", json={
+        "email": unique_email,
+        "password": "Password123!"
+    })
+    assert login_res.status_code == 200
+    reg_data = login_res.json()
     assert reg_data["status"] == "success"
     token = reg_data["token"]
     assert token
 
-    # Upgrade subscription
+    # 4. Upgrade subscription
     upgrade_res = client.post("/api/subscriptions/checkout", json={
         "tier": "pro",
         "billing_period": "annual"

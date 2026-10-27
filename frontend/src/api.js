@@ -149,6 +149,38 @@ export async function updateAdminLead(leadId, status) {
   return res.json();
 }
 
+export async function fetchWhitelist() {
+  const res = await fetch(`${BASE_URL}/admin/whitelist`);
+  if (!res.ok) throw new Error('Failed to load access whitelist');
+  return res.json();
+}
+
+export async function grantCustomerAccess(email, notes = 'Granted by developer') {
+  const res = await fetch(`${BASE_URL}/admin/grant-access`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, notes })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to grant customer access');
+  }
+  return res.json();
+}
+
+export async function revokeCustomerAccess(email) {
+  const res = await fetch(`${BASE_URL}/admin/revoke-access`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to revoke customer access');
+  }
+  return res.json();
+}
+
 export async function subscribeNewsletter(email) {
   const res = await fetch(`${BASE_URL}/newsletter`, {
     method: 'POST',
