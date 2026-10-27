@@ -165,6 +165,35 @@ def test_admin_crm_database():
     assert leads_res.status_code == 200
     assert "total_leads" in leads_res.json()
 
+def test_google_auth():
+    """
+    Verify Google Sign-In and auto-provisioning endpoint
+    """
+    import time
+    unique_email = f"google_user_{int(time.time())}@sentinel.ai"
+    payload = {
+        "email": unique_email,
+        "name": "Google Test User",
+        "google_id": f"g_id_{int(time.time())}"
+    }
+
+    # 1. First-time Google registration
+    res = client.post("/api/auth/google", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["token"]
+    assert data["user"]["email"] == unique_email
+    assert data["user"]["name"] == "Google Test User"
+    assert data["user"]["workspace_id"]
+
+    # 2. Subsequent Google login with same credentials
+    res2 = client.post("/api/auth/google", json=payload)
+    assert res2.status_code == 200
+    data2 = res2.json()
+    assert data2["token"]
+    assert data2["user"]["id"] == data["user"]["id"]
+
 if __name__ == "__main__":
     print("Running Sentinel automated verification suite...")
     test_health()
@@ -181,6 +210,8 @@ if __name__ == "__main__":
     print("[PASS] Enterprise Public Endpoints Verified (Stats & Contact API)")
     test_auth_and_subscriptions()
     print("[PASS] Customer Authentication & Subscription Upgrades Verified")
+    test_google_auth()
+    print("[PASS] Google Sign-In & Workspace Auto-Provisioning Verified")
     test_admin_crm_database()
     print("[PASS] Admin Customer & Leads Database Verified")
     test_tamper_evident_audit_verification()

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ShieldCheck, Mail, Lock, User, Building2, ArrowRight, AlertCircle, Sparkles, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
@@ -196,6 +197,21 @@ export default function RegisterPage() {
               </button>
             </div>
           </form>
+
+          {/* Google Quick Sign Up */}
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-800" />
+            </div>
+            <div className="relative flex justify-center text-[11px]">
+              <span className="px-2 bg-gray-900 text-gray-500 font-medium">Or quick register with</span>
+            </div>
+          </div>
+
+          <GoogleSignInButton
+            text="Sign up with Google"
+            onSuccess={() => navigate('/app', { replace: true })}
+          />
 
           <div className="pt-3 border-t border-gray-800 text-center">
             <p className="text-[11px] text-gray-400">

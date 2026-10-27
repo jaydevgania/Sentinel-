@@ -3,6 +3,7 @@ import {
   X, ShieldCheck, Mail, Lock, Building2, User, Sparkles, Check, AlertCircle, CreditCard
 } from 'lucide-react';
 import { loginUser, registerUser, upgradeSubscription } from '../api';
+import GoogleSignInButton from './GoogleSignInButton';
 
 export default function AuthModal({
   isOpen,
@@ -265,6 +266,18 @@ export default function AuthModal({
             </button>
           </div>
         </form>
+
+        {mode !== 'subscription' && (
+          <div className="mt-3 pt-3 border-t border-gray-800">
+            <GoogleSignInButton
+              text={mode === 'login' ? 'Sign in with Google' : 'Sign up with Google'}
+              onSuccess={(user) => {
+                if (onSuccess) onSuccess(user);
+                onClose();
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -67,6 +67,24 @@ export async function loginUser(email, password) {
   return result;
 }
 
+export async function googleSignIn(data) {
+  const res = await fetch(`${BASE_URL}/auth/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Google authentication failed');
+  }
+  const result = await res.json();
+  if (result.token) {
+    setStoredToken(result.token);
+    setStoredUser(result.user);
+  }
+  return result;
+}
+
 export async function fetchMe() {
   const token = getStoredToken();
   if (!token) return null;

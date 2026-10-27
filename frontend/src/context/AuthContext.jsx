@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   getStoredToken, getStoredUser, setStoredToken, setStoredUser,
-  loginUser, registerUser, logoutUser, fetchMe, upgradeSubscription
+  loginUser, registerUser, googleSignIn, logoutUser, fetchMe, upgradeSubscription
 } from '../api';
 
 const AuthContext = createContext(null);
@@ -40,6 +40,13 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await loginUser(email, password);
+    setToken(res.token);
+    setUser(res.user);
+    return res.user;
+  };
+
+  const loginWithGoogle = async (googleData) => {
+    const res = await googleSignIn(googleData);
     setToken(res.token);
     setUser(res.user);
     return res.user;
@@ -84,6 +91,7 @@ export function AuthProvider({ children }) {
     isAdmin: !!user?.is_admin,
     loading,
     login,
+    loginWithGoogle,
     register,
     logout,
     upgradePlan,
