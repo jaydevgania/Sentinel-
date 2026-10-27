@@ -167,11 +167,14 @@ export default function AdminCRMPage() {
             </Link>
             <span className="text-gray-600">/</span>
             <span className="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/30">
-              Developer Admin & Access Control
+              Developer Admin Panel
             </span>
           </div>
 
           <div className="flex items-center space-x-3">
+            <span className="hidden sm:inline-flex items-center text-[11px] font-mono font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-xl">
+              Sole Developer: devgania1@gmail.com
+            </span>
             <button
               onClick={loadAll}
               className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg border border-gray-800 transition"

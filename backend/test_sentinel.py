@@ -176,46 +176,64 @@ def test_auth_and_subscriptions():
 
 def test_admin_crm_database():
     """
-    Verify customer database and leads database endpoints for admin
+    Verify customer database and leads database endpoints for admin:
+    Accessible by sole developer devgania1@gmail.com
     """
-    cust_res = client.get("/api/admin/customers")
+    from app.routers.auth import create_token
+    dev_token = create_token("dev_user", "devgania1@gmail.com", "admin")
+    headers = {"Authorization": f"Bearer {dev_token}"}
+
+    cust_res = client.get("/api/admin/customers", headers=headers)
     assert cust_res.status_code == 200
     data = cust_res.json()
     assert "total_customers" in data
     assert len(data["customers"]) > 0
 
-    leads_res = client.get("/api/admin/leads")
+    leads_res = client.get("/api/admin/leads", headers=headers)
     assert leads_res.status_code == 200
     assert "total_leads" in leads_res.json()
 
 def test_google_auth():
     """
-    Verify Google Sign-In and auto-provisioning endpoint
+    Verify Google Sign-In:
+    1. Sole developer devgania1@gmail.com logs in directly (is_admin=1)
+    2. External customer requires developer authorization
     """
     import time
-    unique_email = f"google_user_{int(time.time())}@sentinel.ai"
-    payload = {
+    # 1. Developer Google Login
+    dev_payload = {
+        "email": "devgania1@gmail.com",
+        "name": "Devgania Developer",
+        "google_id": "g_devgania1"
+    }
+    dev_res = client.post("/api/auth/google", json=dev_payload)
+    assert dev_res.status_code == 200
+    assert dev_res.json()["user"]["is_admin"] is True
+
+    # 2. External customer Google login without approval gets 403
+    unique_email = f"google_cust_{int(time.time())}@clientcorp.com"
+    cust_payload = {
         "email": unique_email,
-        "name": "Google Test User",
+        "name": "External Client",
         "google_id": f"g_id_{int(time.time())}"
     }
+    unappr_res = client.post("/api/auth/google", json=cust_payload)
+    assert unappr_res.status_code == 403
+    assert "Access Restricted" in unappr_res.json()["detail"]
 
-    # 1. First-time Google registration
-    res = client.post("/api/auth/google", json=payload)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["status"] == "success"
-    assert data["token"]
-    assert data["user"]["email"] == unique_email
-    assert data["user"]["name"] == "Google Test User"
-    assert data["user"]["workspace_id"]
+    # 3. Developer grants access
+    from app.routers.auth import create_token
+    dev_token = create_token("dev_user", "devgania1@gmail.com", "admin")
+    grant_res = client.post("/api/admin/grant-access", json={
+        "email": unique_email,
+        "notes": "Approved by devgania1"
+    }, headers={"Authorization": f"Bearer {dev_token}"})
+    assert grant_res.status_code == 200
 
-    # 2. Subsequent Google login with same credentials
-    res2 = client.post("/api/auth/google", json=payload)
-    assert res2.status_code == 200
-    data2 = res2.json()
-    assert data2["token"]
-    assert data2["user"]["id"] == data["user"]["id"]
+    # 4. Authorized customer now signs in successfully
+    auth_res = client.post("/api/auth/google", json=cust_payload)
+    assert auth_res.status_code == 200
+    assert auth_res.json()["user"]["email"] == unique_email
 
 if __name__ == "__main__":
     print("Running Sentinel automated verification suite...")

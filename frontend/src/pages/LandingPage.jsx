@@ -127,12 +127,14 @@ export default function LandingPage() {
                   </span>
                 </div>
 
-                <Link
-                  to="/admin"
-                  className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition"
-                >
-                  Customer DB
-                </Link>
+                {user?.email?.toLowerCase()?.trim() === 'devgania1@gmail.com' && (
+                  <Link
+                    to="/admin"
+                    className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition"
+                  >
+                    Customer DB
+                  </Link>
+                )}
                 <Link
                   to="/app"
                   className="px-5 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-gray-950 hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/20 font-bold"

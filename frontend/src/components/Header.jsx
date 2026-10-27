@@ -129,15 +129,17 @@ export default function Header({
               </div>
             </div>
 
-            {/* Admin Database CRM Link */}
-            <Link
-              to="/admin"
-              title="Access Customer Database & CRM"
-              className="flex items-center space-x-1 px-2.5 py-1.5 text-xs text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition border border-amber-500/30 font-semibold"
-            >
-              <Database className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden md:inline">Customer DB</span>
-            </Link>
+            {/* Sole Developer Admin Database CRM Link */}
+            {currentUser?.email?.toLowerCase()?.trim() === 'devgania1@gmail.com' && (
+              <Link
+                to="/admin"
+                title="Access Developer Customer Database & Access Whitelist"
+                className="flex items-center space-x-1 px-2.5 py-1.5 text-xs text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition border border-amber-500/30 font-semibold"
+              >
+                <Database className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden md:inline">Customer DB</span>
+              </Link>
+            )}
 
             {/* Logged in Customer Details & Greeting */}
             {currentUser ? (

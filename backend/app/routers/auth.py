@@ -57,24 +57,14 @@ def get_current_user_optional(authorization: Optional[str] = Header(None), db: S
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 
-# Developer Emails with Master Access
-DEVELOPER_EMAILS = [
-    "jay.devgania@gmail.com",
-    "devgania1@gmail.com",
-    "admin@sentinel.ai",
-    "developer@sentinel.ai"
-]
+# Sole Developer Email with Exclusive Master Access
+SOLE_DEVELOPER_EMAIL = "devgania1@gmail.com"
+DEVELOPER_EMAILS = [SOLE_DEVELOPER_EMAIL]
 
 def is_developer_email(email: str) -> bool:
     if not email:
         return False
-    e = email.lower().strip()
-    if e in DEVELOPER_EMAILS:
-        return True
-    if "devgania" in e or "admin@" in e or e.endswith("@sentinel.ai"):
-        return True
-    env_devs = [x.strip().lower() for x in os.getenv("DEVELOPER_EMAILS", "").split(",") if x.strip()]
-    return e in env_devs
+    return email.lower().strip() == SOLE_DEVELOPER_EMAIL
 
 def check_access_permission(email: str, db: Session) -> bool:
     """
