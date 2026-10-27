@@ -302,9 +302,8 @@ export default function App() {
         onClose={() => setAuthModalOpen(false)}
         initialMode={authModalMode}
         selectedPlan={authSelectedPlan}
-        onSuccess={(user) => {
-          if (user) setCurrentUser(user);
-          else fetchMe().then(u => u && setCurrentUser(u));
+        onSuccess={() => {
+          if (refreshProfile) refreshProfile().catch(() => {});
         }}
       />
     </div>
