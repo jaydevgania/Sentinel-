@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles, ShieldCheck, AlertCircle, Send, CheckCircle2,
-  FileText, Upload, RefreshCw, Layers, Check
+  FileText, Upload, RefreshCw, Layers, Check, CreditCard
 } from 'lucide-react';
 import Header from './components/Header';
 import SamplePicker from './components/SamplePicker';
@@ -161,6 +161,54 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Customer Welcome & Identity Banner */}
+        {currentUser && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-gray-900 via-gray-900 to-gray-850 border border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center space-x-3.5">
+              {currentUser.picture ? (
+                <img
+                  src={currentUser.picture}
+                  alt={currentUser.name}
+                  className="w-11 h-11 rounded-2xl border-2 border-amber-500/40 object-cover shadow-md shrink-0"
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 text-gray-950 font-black text-lg flex items-center justify-center shadow-lg shadow-amber-900/30 shrink-0">
+                  {(currentUser.name || currentUser.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
+              <div>
+                <div className="text-base font-extrabold text-white flex items-center space-x-2">
+                  <span>Hello, {currentUser.name || currentUser.email.split('@')[0]}!</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    Logged In
+                  </span>
+                </div>
+                <div className="text-xs text-gray-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                  <span>Work Email: <strong className="text-gray-200 font-mono">{currentUser.email}</strong></span>
+                  <span className="text-gray-600">&bull;</span>
+                  <span>Brand Workspace: <strong className="text-amber-400">{currentUser.brand_name || currentUser.company_name || 'Brand Workspace'}</strong></span>
+                  <span className="text-gray-600">&bull;</span>
+                  <span>Role: <strong className="text-gray-300 capitalize">{currentUser.role || 'manager'}</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2.5 shrink-0 self-end sm:self-center">
+              <div className="text-right hidden sm:block">
+                <div className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Subscription</div>
+                <div className="text-xs font-bold text-amber-400 capitalize">{currentUser.subscription_tier || 'Starter'} Plan</div>
+              </div>
+              <button
+                onClick={() => handleOpenAuth('subscription', currentUser.subscription_tier)}
+                className="px-3 py-1.5 bg-gray-800 hover:bg-gray-750 text-white font-semibold rounded-xl text-xs border border-gray-700 transition flex items-center space-x-1.5 cursor-pointer shadow-sm"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+                <span>Upgrade Plan</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* TAB 1: REVIEW STUDIO */}
         {activeTab === 'review' && (
           <div className="space-y-6">

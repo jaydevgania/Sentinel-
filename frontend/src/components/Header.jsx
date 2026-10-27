@@ -139,21 +139,56 @@ export default function Header({
               <span className="hidden md:inline">Customer DB</span>
             </Link>
 
-            {/* Auth / Subscription Profile */}
+            {/* Logged in Customer Details & Greeting */}
             {currentUser ? (
-              <div className="flex items-center space-x-2 bg-gray-950/80 p-1 rounded-xl border border-gray-800">
+              <div className="flex items-center space-x-2 bg-gray-950/90 p-1 pl-2.5 rounded-2xl border border-gray-800 shadow-sm">
+                {/* Greeting & Avatar */}
+                <div className="flex items-center space-x-2">
+                  {currentUser.picture ? (
+                    <img
+                      src={currentUser.picture}
+                      alt={currentUser.name}
+                      className="w-7 h-7 rounded-full border border-amber-500/40 object-cover"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 text-gray-950 font-extrabold text-xs flex items-center justify-center shadow-sm shrink-0">
+                      {(currentUser.name || currentUser.email || 'U')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <div className="text-left leading-tight hidden lg:block">
+                    <div className="text-xs font-bold text-white flex items-center space-x-1">
+                      <span>Hello,</span>
+                      <span className="text-amber-400 font-extrabold truncate max-w-[120px]">
+                        {currentUser.name || currentUser.email.split('@')[0]}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-gray-400 truncate max-w-[120px]">
+                      {currentUser.brand_name || currentUser.company_name || currentUser.email}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Plan Badge */}
                 <button
                   onClick={() => onOpenAuthModal && onOpenAuthModal('subscription', currentUser.subscription_tier)}
-                  className="flex items-center space-x-1.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition cursor-pointer"
-                  title="Click to upgrade subscription"
+                  className={`flex items-center space-x-1 px-2 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition cursor-pointer ${
+                    currentUser.subscription_tier === 'pro'
+                      ? 'bg-purple-500/15 text-purple-300 border-purple-500/40 hover:bg-purple-500/25'
+                      : currentUser.subscription_tier === 'enterprise'
+                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 hover:bg-amber-500/25'
+                      : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-750'
+                  }`}
+                  title="Subscription Plan (Click to upgrade)"
                 >
                   <CreditCard className="w-3 h-3 text-amber-400" />
-                  <span className="capitalize">{currentUser.subscription_tier || 'Starter'}</span>
+                  <span>{currentUser.subscription_tier || 'Starter'}</span>
                 </button>
+
+                {/* Sign Out */}
                 <button
                   onClick={onLogout}
-                  className="text-[10px] text-gray-500 hover:text-red-400 px-1 py-0.5 transition"
-                  title="Sign Out"
+                  className="px-2 py-1 text-[11px] font-semibold text-gray-400 hover:text-red-400 hover:bg-red-950/30 rounded-lg transition cursor-pointer"
+                  title="Sign Out of Customer Workspace"
                 >
                   Sign Out
                 </button>

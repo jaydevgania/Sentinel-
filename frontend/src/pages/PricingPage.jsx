@@ -228,10 +228,16 @@ export default function PricingPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <Link to="/app" className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
-                Launch App &rarr;
-              </Link>
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-2.5">
+                <div className="hidden sm:flex items-center space-x-1.5 text-xs bg-gray-900/80 px-2.5 py-1 rounded-lg border border-gray-800">
+                  <span className="text-gray-400">Hello,</span>
+                  <span className="font-bold text-amber-400">{user.name || user.email.split('@')[0]}</span>
+                </div>
+                <Link to="/app" className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                  Launch App &rarr;
+                </Link>
+              </div>
             ) : (
               <>
                 <Link to="/login" className="text-xs text-gray-400 hover:text-white transition font-medium">

@@ -115,8 +115,18 @@ export default function LandingPage() {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated ? (
+            {isAuthenticated && user ? (
               <div className="flex items-center gap-3">
+                {/* User Greeting & Avatar */}
+                <div className="flex items-center space-x-2 bg-gray-900/90 py-1 px-2.5 rounded-xl border border-gray-800">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 text-gray-950 font-bold text-xs flex items-center justify-center">
+                    {(user.name || user.email || 'U')[0].toUpperCase()}
+                  </div>
+                  <span className="text-xs font-bold text-white">
+                    Hello, <span className="text-amber-400">{user.name || user.email.split('@')[0]}</span>
+                  </span>
+                </div>
+
                 <Link
                   to="/admin"
                   className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition"
@@ -127,11 +137,11 @@ export default function LandingPage() {
                   to="/app"
                   className="px-5 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-gray-950 hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/20 font-bold"
                 >
-                  Launch App &rarr;
+                  Launch Studio &rarr;
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-xs text-gray-500 hover:text-red-400 transition"
+                  className="text-xs text-gray-500 hover:text-red-400 transition cursor-pointer"
                 >
                   Sign Out
                 </button>
