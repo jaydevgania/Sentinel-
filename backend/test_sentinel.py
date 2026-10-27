@@ -123,6 +123,48 @@ def test_public_endpoints():
     assert contact_res.status_code == 200
     assert contact_res.json()["status"] == "success"
 
+def test_auth_and_subscriptions():
+    """
+    Test customer account creation, login, and subscription upgrade
+    """
+    import uuid
+    unique_email = f"customer_{uuid.uuid4().hex[:6]}@brandcorp.com"
+    reg_res = client.post("/api/auth/register", json={
+        "name": "Alex Mercer",
+        "email": unique_email,
+        "password": "Password123!",
+        "company_name": "Mercer Brands",
+        "brand_name": "Mercer Coffee",
+        "plan": "starter"
+    })
+    assert reg_res.status_code == 200
+    reg_data = reg_res.json()
+    assert reg_data["status"] == "success"
+    token = reg_data["token"]
+    assert token
+
+    # Upgrade subscription
+    upgrade_res = client.post("/api/subscriptions/checkout", json={
+        "tier": "pro",
+        "billing_period": "annual"
+    }, headers={"Authorization": f"Bearer {token}"})
+    assert upgrade_res.status_code == 200
+    assert upgrade_res.json()["subscription"]["tier"] == "pro"
+
+def test_admin_crm_database():
+    """
+    Verify customer database and leads database endpoints for admin
+    """
+    cust_res = client.get("/api/admin/customers")
+    assert cust_res.status_code == 200
+    data = cust_res.json()
+    assert "total_customers" in data
+    assert len(data["customers"]) > 0
+
+    leads_res = client.get("/api/admin/leads")
+    assert leads_res.status_code == 200
+    assert "total_leads" in leads_res.json()
+
 if __name__ == "__main__":
     print("Running Sentinel automated verification suite...")
     test_health()
@@ -137,6 +179,10 @@ if __name__ == "__main__":
     print("[PASS] Role Security Enforced (Creator blocked, Manager permitted)")
     test_public_endpoints()
     print("[PASS] Enterprise Public Endpoints Verified (Stats & Contact API)")
+    test_auth_and_subscriptions()
+    print("[PASS] Customer Authentication & Subscription Upgrades Verified")
+    test_admin_crm_database()
+    print("[PASS] Admin Customer & Leads Database Verified")
     test_tamper_evident_audit_verification()
     print("[PASS] Cryptographic Audit Trail Verified")
     print("\nALL SECTION 11 TESTS PASSED WITH 100% SUCCESS!")

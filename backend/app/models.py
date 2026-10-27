@@ -24,9 +24,55 @@ class User(Base):
     id = Column(String(36), primary_key=True, default=gen_uuid)
     workspace_id = Column(String(36), ForeignKey("workspaces.id"), nullable=False)
     name = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, nullable=True, index=True)
+    hashed_password = Column(String(255), nullable=True)
+    company_name = Column(String(255), nullable=True)
     role = Column(String(50), nullable=False, default="creator") # creator, manager, reviewer, admin
+    is_admin = Column(Integer, default=0) # 1 if admin
+    subscription_tier = Column(String(50), default="starter") # starter, pro, enterprise
+    subscription_status = Column(String(50), default="active") # active, trialing, canceled
+    subscription_period = Column(String(50), default="monthly") # monthly, annual
+    reviews_count = Column(Integer, default=0)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    last_login_at = Column(DateTime, nullable=True)
 
     workspace = relationship("Workspace", back_populates="users")
+    transactions = relationship("SubscriptionTransaction", back_populates="user", cascade="all, delete-orphan")
+
+class Lead(Base):
+    __tablename__ = "leads"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False, index=True)
+    company = Column(String(255), nullable=True)
+    team_size = Column(String(50), nullable=True)
+    subject = Column(String(255), default="General Inquiry")
+    message = Column(Text, nullable=False)
+    status = Column(String(50), default="new") # new, contacted, qualified, converted
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class Subscriber(Base):
+    __tablename__ = "subscribers"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    source = Column(String(100), default="landing_page")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class SubscriptionTransaction(Base):
+    __tablename__ = "subscription_transactions"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    tier = Column(String(50), nullable=False)
+    amount = Column(Float, nullable=False)
+    billing_cycle = Column(String(50), default="monthly")
+    status = Column(String(50), default="paid")
+    payment_method = Column(String(50), default="simulated_card")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("User", back_populates="transactions")
 
 class Rule(Base):
     __tablename__ = "rules"

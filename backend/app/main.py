@@ -9,7 +9,7 @@ from .config import settings
 from .database import engine, Base, SessionLocal
 from .models import Workspace
 from .seed_data import seed_demo_workspace
-from .routers import workspaces, rules, reviews, insights, public
+from .routers import workspaces, rules, reviews, insights, public, auth
 from .engine.ai_adapter import ai_adapter
 
 # Path to built frontend (for production single-binary deployment)
@@ -49,6 +49,7 @@ app.include_router(rules.router)
 app.include_router(reviews.router)
 app.include_router(insights.router)
 app.include_router(public.router)
+app.include_router(auth.router)
 
 @app.get("/health")
 def health_check():

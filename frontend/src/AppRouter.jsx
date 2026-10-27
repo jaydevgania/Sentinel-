@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import ContactPage from './pages/ContactPage';
 import PricingPage from './pages/PricingPage';
+import AdminCRMPage from './pages/AdminCRMPage';
 import App from './App';
 
 export default function AppRouter() {
@@ -14,6 +15,9 @@ export default function AppRouter() {
       <Route path="/how-it-works" element={<HowItWorksPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/pricing" element={<PricingPage />} />
+
+      {/* Admin Customer & CRM Database */}
+      <Route path="/admin" element={<AdminCRMPage />} />
 
       {/* Main Sentinel Application */}
       <Route path="/app" element={<App />} />

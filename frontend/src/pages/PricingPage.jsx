@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import AuthModal from '../components/AuthModal';
 import {
   Check,
   X,
@@ -206,6 +207,9 @@ function FAQItem({ question, answer }) {
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTier, setModalTier] = useState('pro');
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -347,16 +351,28 @@ export default function PricingPage() {
                 </div>
 
                 {/* CTA Button */}
-                <Link
-                  to={plan.ctaLink}
-                  className={`block w-full text-center py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 mb-8 ${
-                    isHighlighted
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 hover:from-amber-400 hover:to-orange-400 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40'
-                      : 'bg-gray-800 text-gray-200 hover:bg-gray-700 border border-gray-700'
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+                {plan.name === 'Enterprise' ? (
+                  <Link
+                    to="/contact"
+                    className="block w-full text-center py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 mb-8 bg-gray-800 text-gray-200 hover:bg-gray-700 border border-gray-700"
+                  >
+                    Contact Sales
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setModalTier(plan.name.toLowerCase());
+                      setModalOpen(true);
+                    }}
+                    className={`block w-full text-center py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 mb-8 cursor-pointer ${
+                      isHighlighted
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 hover:from-amber-400 hover:to-orange-400 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40'
+                        : 'bg-gray-800 text-gray-200 hover:bg-gray-700 border border-gray-700'
+                    }`}
+                  >
+                    {plan.cta}
+                  </button>
+                )}
 
                 {/* Features List */}
                 <div className="space-y-3 flex-1">
@@ -503,6 +519,17 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+
+      {/* Subscription & Customer Auth Modal */}
+      <AuthModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        initialMode="register"
+        selectedPlan={modalTier}
+        onSuccess={() => {
+          navigate('/app');
+        }}
+      />
     </div>
   );
 }

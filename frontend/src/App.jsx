@@ -9,8 +9,10 @@ import FindingsStudio from './components/FindingsStudio';
 import ReviewQueueScreen from './components/ReviewQueueScreen';
 import KnowledgeBaseScreen from './components/KnowledgeBaseScreen';
 import InsightsScreen from './components/InsightsScreen';
+import AuthModal from './components/AuthModal';
 import {
-  fetchWorkspace, resetDemo, submitReview, getReview, fetchQueue
+  fetchWorkspace, resetDemo, submitReview, getReview, fetchQueue,
+  getStoredUser, fetchMe, logoutUser
 } from './api';
 
 export default function App() {
@@ -19,6 +21,12 @@ export default function App() {
   const [workspace, setWorkspace] = useState(null);
   const [samples, setSamples] = useState([]);
   const [selectedSample, setSelectedSample] = useState(null);
+
+  // Auth & Subscription State
+  const [currentUser, setCurrentUser] = useState(getStoredUser());
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
+  const [authSelectedPlan, setAuthSelectedPlan] = useState('pro');
 
   // Form State
   const [channel, setChannel] = useState('instagram');
@@ -59,7 +67,21 @@ export default function App() {
 
   useEffect(() => {
     initializeApp();
+    fetchMe().then(u => {
+      if (u) setCurrentUser(u);
+    }).catch(() => {});
   }, []);
+
+  const handleOpenAuth = (mode = 'login', plan = 'pro') => {
+    setAuthModalMode(mode);
+    setAuthSelectedPlan(plan);
+    setAuthModalOpen(true);
+  };
+
+  const handleLogout = () => {
+    logoutUser();
+    setCurrentUser(null);
+  };
 
   const handleSelectSample = (sample) => {
     setSelectedSample(sample);
@@ -127,7 +149,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col font-sans selection:bg-amber-500/30 selection:text-amber-200">
-      {/* Persistent Header with Role Switcher */}
+      {/* Persistent Header with Role Switcher & Auth */}
       <Header
         activeRole={activeRole}
         setActiveRole={setActiveRole}
@@ -136,6 +158,9 @@ export default function App() {
         queueCount={queueCount}
         onResetDemo={handleReset}
         isResetting={isResetting}
+        currentUser={currentUser}
+        onOpenAuthModal={handleOpenAuth}
+        onLogout={handleLogout}
       />
 
       {/* Main Container */}
@@ -274,6 +299,18 @@ export default function App() {
           Sentinel &bull; CodeStar 30 Round 2 MVP &bull; Team SENTINEL ARK (Jay Devgania, Dharmi Gor, Hazel Kanabar, Shiv Kumbhar)
         </p>
       </footer>
+
+      {/* Customer Auth & Subscription Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authModalMode}
+        selectedPlan={authSelectedPlan}
+        onSuccess={(user) => {
+          if (user) setCurrentUser(user);
+          else fetchMe().then(u => u && setCurrentUser(u));
+        }}
+      />
     </div>
   );
 }

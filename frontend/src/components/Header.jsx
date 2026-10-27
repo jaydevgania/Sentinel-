@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, UserCheck, RefreshCw, Sparkles, BookOpen, Layers, BarChart3, Clock, Home } from 'lucide-react';
+import {
+  ShieldCheck, UserCheck, RefreshCw, Sparkles, BookOpen,
+  Layers, BarChart3, Clock, Home, Database, CreditCard, LogIn, User
+} from 'lucide-react';
 
 export default function Header({
   activeRole,
@@ -9,7 +12,10 @@ export default function Header({
   setActiveTab,
   queueCount,
   onResetDemo,
-  isResetting
+  isResetting,
+  currentUser,
+  onOpenAuthModal,
+  onLogout
 }) {
   const roles = [
     { id: 'creator', label: 'Creator', name: 'Alex Vance', icon: Sparkles },
@@ -122,6 +128,45 @@ export default function Header({
                 })}
               </div>
             </div>
+
+            {/* Admin Database CRM Link */}
+            <Link
+              to="/admin"
+              title="Access Customer Database & CRM"
+              className="flex items-center space-x-1 px-2.5 py-1.5 text-xs text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition border border-amber-500/30 font-semibold"
+            >
+              <Database className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden md:inline">Customer DB</span>
+            </Link>
+
+            {/* Auth / Subscription Profile */}
+            {currentUser ? (
+              <div className="flex items-center space-x-2 bg-gray-950/80 p-1 rounded-xl border border-gray-800">
+                <button
+                  onClick={() => onOpenAuthModal && onOpenAuthModal('subscription', currentUser.subscription_tier)}
+                  className="flex items-center space-x-1.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition cursor-pointer"
+                  title="Click to upgrade subscription"
+                >
+                  <CreditCard className="w-3 h-3 text-amber-400" />
+                  <span className="capitalize">{currentUser.subscription_tier || 'Starter'}</span>
+                </button>
+                <button
+                  onClick={onLogout}
+                  className="text-[10px] text-gray-500 hover:text-red-400 px-1 py-0.5 transition"
+                  title="Sign Out"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => onOpenAuthModal && onOpenAuthModal('login')}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-gray-950 font-bold rounded-lg text-xs hover:from-amber-400 hover:to-amber-500 shadow-sm transition"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            )}
 
             {/* Public Site Link */}
             <Link
