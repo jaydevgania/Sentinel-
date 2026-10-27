@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShieldCheck, Mail, Lock, ArrowRight, AlertCircle, Sparkles, Check } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 
@@ -27,29 +27,6 @@ export default function LoginPage() {
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || 'Invalid email or password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Quick Demo Login for judges/evaluators
-  const handleQuickDemoLogin = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      // Login with pre-seeded demo user or register
-      await login('alex@nimbuscoffee.com', 'DemoPass2026!');
-      navigate(from, { replace: true });
-    } catch (err) {
-      // If demo user doesn't exist yet, attempt with standard test user
-      try {
-        await login('sarah@skynet-defense.com', 'Secr3tPassword!');
-        navigate(from, { replace: true });
-      } catch (err2) {
-        setEmail('sarah@skynet-defense.com');
-        setPassword('Secr3tPassword!');
-        setError('Pre-filled test credentials. Click Sign In to proceed.');
-      }
     } finally {
       setLoading(false);
     }
@@ -158,30 +135,10 @@ export default function LoginPage() {
             onSuccess={() => navigate(from, { replace: true })}
           />
 
-          {/* Quick Demo Access for Hackathon Judges */}
-          <div className="pt-4 border-t border-gray-800">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] uppercase tracking-wider font-bold text-gray-400 flex items-center space-x-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 mr-1" />
-                <span>One-Click Test Access</span>
-              </span>
-              <span className="text-[10px] text-emerald-400 font-medium">Judge Ready</span>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleQuickDemoLogin}
-              disabled={loading}
-              className="w-full py-2 px-3 bg-gray-950 hover:bg-gray-850 text-gray-300 hover:text-white rounded-xl text-xs font-semibold border border-gray-800 hover:border-gray-700 transition flex items-center justify-center space-x-2 cursor-pointer"
-            >
-              <span>Instant Test Sign In (Sarah Connor - Enterprise)</span>
-            </button>
-
-            <div className="mt-3 text-center">
-              <Link to="/app" className="text-xs text-gray-400 hover:text-amber-400 underline">
-                Continue to Nimbus Coffee Demo without signing in &rarr;
-              </Link>
-            </div>
+          <div className="pt-4 border-t border-gray-800 text-center">
+            <Link to="/app" className="text-xs text-gray-400 hover:text-amber-400 underline">
+              Explore Demo Workspace without signing in &rarr;
+            </Link>
           </div>
         </div>
       </div>

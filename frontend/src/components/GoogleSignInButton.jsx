@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { X, ExternalLink, Loader2, KeyRound, AlertCircle, RefreshCw, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function GoogleSignInButton({
   text = "Continue with Google",
@@ -11,11 +11,7 @@ export default function GoogleSignInButton({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [popupBlocked, setPopupBlocked] = useState(false);
-  const [showConfigModal, setShowConfigModal] = useState(false);
-  const [activeClientId, setActiveClientId] = useState(
-    () => localStorage.getItem('sentinel_google_client_id') || import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
-  );
-  const [inputClientId, setInputClientId] = useState(activeClientId);
+  const activeClientId = localStorage.getItem('sentinel_google_client_id') || import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   const googleBtnContainerRef = useRef(null);
   const tokenClientRef = useRef(null);
@@ -65,7 +61,7 @@ export default function GoogleSignInButton({
     handleHash();
   }, []);
 
-  // Pre-initialize Google Identity Services & Token Client synchronously ahead of user click
+  // Pre-initialize Google Identity Services & Token Client ahead of user click
   useEffect(() => {
     if (!activeClientId) return;
 
@@ -88,7 +84,7 @@ export default function GoogleSignInButton({
                 if (tokenResponse.error === 'access_denied') {
                   setErrorMessage('Google sign-in was canceled.');
                 } else {
-                  setErrorMessage(`Google OAuth error: ${tokenResponse.error_description || tokenResponse.error}`);
+                  setErrorMessage(`Google sign-in was not completed: ${tokenResponse.error_description || tokenResponse.error}`);
                 }
                 return;
               }
@@ -117,7 +113,7 @@ export default function GoogleSignInButton({
               } else if (error.type === 'popup_closed') {
                 setErrorMessage('Google sign-in popup was closed before completing.');
               } else {
-                setErrorMessage(`Google sign-in error (${error.type}): Please check Client ID and Authorized Origins in Google Cloud Console.`);
+                setErrorMessage('Google sign-in could not be completed. Please try again or use direct redirect.');
               }
             }
           });
@@ -190,7 +186,7 @@ export default function GoogleSignInButton({
     setPopupBlocked(false);
 
     if (!activeClientId) {
-      setShowConfigModal(true);
+      setErrorMessage('Google Sign-In is currently unavailable. Please sign in with email and password.');
       return;
     }
 
@@ -203,7 +199,7 @@ export default function GoogleSignInButton({
       setPopupBlocked(true);
     }, 8000);
 
-    // Synchronous execution using pre-initialized client (preserves user-gesture activation)
+    // Synchronous execution using pre-initialized client
     if (tokenClientRef.current) {
       try {
         tokenClientRef.current.requestAccessToken({ prompt: 'select_account' });
@@ -213,14 +209,14 @@ export default function GoogleSignInButton({
       }
     }
 
-    // If client wasn't ready yet or failed, fall back to direct redirect
+    // Direct redirect fallback
     handleDirectRedirect();
   };
 
   // Full-Page Redirect Flow: 100% immune to popup blockers
   const handleDirectRedirect = () => {
     if (!activeClientId) {
-      setShowConfigModal(true);
+      setErrorMessage('Google Sign-In is currently unavailable. Please sign in with email and password.');
       return;
     }
 
@@ -231,29 +227,8 @@ export default function GoogleSignInButton({
       `&scope=${encodeURIComponent('openid email profile')}` +
       `&prompt=select_account`;
 
-    // Direct page navigation - impossible for any popup blocker or browser shield to block!
+    // Direct page navigation - impossible for any popup blocker to block
     window.location.href = oauthUrl;
-  };
-
-  const handleSaveClientId = (e) => {
-    e.preventDefault();
-    const cleanId = inputClientId.trim();
-    if (!cleanId) return;
-
-    localStorage.setItem('sentinel_google_client_id', cleanId);
-    setActiveClientId(cleanId);
-    setShowConfigModal(false);
-    setErrorMessage(null);
-    setPopupBlocked(false);
-  };
-
-  const handleResetClientId = () => {
-    localStorage.removeItem('sentinel_google_client_id');
-    setActiveClientId(import.meta.env.VITE_GOOGLE_CLIENT_ID || '');
-    setInputClientId('');
-    setErrorMessage(null);
-    setPopupBlocked(false);
-    setShowConfigModal(true);
   };
 
   return (
@@ -294,19 +269,16 @@ export default function GoogleSignInButton({
             <span>Browser blocked the popup window</span>
           </div>
           <p className="text-[11px] text-gray-300 leading-relaxed">
-            Your browser or ad-blocker blocked the popup. Click below to sign in directly via <strong>Full-Page Google Redirect</strong> (cannot be blocked):
+            Your browser blocked the popup. Click below to continue directly via Google:
           </p>
           <button
             type="button"
             onClick={handleDirectRedirect}
             className="w-full py-2.5 px-3 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-gray-950 font-bold rounded-lg text-xs shadow-md transition flex items-center justify-center space-x-2 cursor-pointer"
           >
-            <span>Continue via Full-Page Google Redirect</span>
+            <span>Continue with Google</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
-          <p className="text-[10px] text-gray-400">
-            Note: In Google Cloud Console, ensure <code className="text-emerald-400">{redirectUri}</code> is listed under <strong>Authorized redirect URIs</strong>.
-          </p>
         </div>
       )}
 
@@ -322,132 +294,8 @@ export default function GoogleSignInButton({
                 onClick={handleDirectRedirect}
                 className="text-amber-400 hover:underline font-bold"
               >
-                Try Full-Page Redirect
+                Try Again via Redirect
               </button>
-              <button
-                type="button"
-                onClick={handleResetClientId}
-                className="text-gray-400 hover:text-white underline"
-              >
-                Change Client ID
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Client ID Status & Configuration Link */}
-      <div className="flex items-center justify-between text-[10px] text-gray-400 px-1">
-        <span>
-          {activeClientId ? (
-            <span className="text-emerald-400 flex items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block mr-1"></span>
-              Google Client ID active
-            </span>
-          ) : (
-            <span className="text-amber-400">Google Client ID required</span>
-          )}
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            setInputClientId(activeClientId);
-            setShowConfigModal(true);
-          }}
-          className="text-amber-400 hover:text-amber-300 underline cursor-pointer"
-        >
-          {activeClientId ? 'Change Client ID' : 'Configure Client ID'}
-        </button>
-      </div>
-
-      {/* Configuration Modal */}
-      {showConfigModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/85 backdrop-blur-md">
-          <div className="bg-gray-900 border border-gray-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative text-left">
-            <button
-              onClick={() => setShowConfigModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white p-1 rounded-lg"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center space-x-2.5 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-md">
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white">Google OAuth 2.0 Configuration</h3>
-                <p className="text-xs text-gray-400">Web Application Client ID</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleSaveClientId} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1">
-                  Google Client ID
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="1234567890-abc123xyz.apps.googleusercontent.com"
-                  value={inputClientId}
-                  onChange={(e) => setInputClientId(e.target.value)}
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400 font-mono"
-                />
-              </div>
-
-              {/* Exact URIs to copy into Google Cloud Console */}
-              <div className="bg-gray-950 border border-gray-800 rounded-xl p-3 text-[11px] text-gray-300 space-y-2">
-                <div>
-                  <span className="font-bold text-amber-400 block mb-0.5">1. Authorized JavaScript origins:</span>
-                  <div className="font-mono text-emerald-400 bg-gray-900 p-1.5 rounded border border-gray-800 select-all font-semibold">
-                    {currentOrigin}
-                  </div>
-                </div>
-
-                <div>
-                  <span className="font-bold text-amber-400 block mb-0.5">2. Authorized redirect URIs:</span>
-                  <div className="font-mono text-emerald-400 bg-gray-900 p-1.5 rounded border border-gray-800 select-all font-semibold">
-                    {redirectUri}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex space-x-2 pt-1">
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-gray-950 font-bold rounded-xl text-xs shadow-lg transition"
-                >
-                  Save & Connect
-                </button>
-                {activeClientId && (
-                  <button
-                    type="button"
-                    onClick={handleResetClientId}
-                    className="py-2.5 px-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-            </form>
-
-            <div className="mt-4 pt-3 border-t border-gray-800 text-[11px] text-gray-400 flex items-center justify-between">
-              <span>Google Cloud Console:</span>
-              <a
-                href="https://console.cloud.google.com/apis/credentials"
-                target="_blank"
-                rel="noreferrer"
-                className="text-amber-400 hover:underline flex items-center space-x-1"
-              >
-                <span>Credentials Dashboard</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
             </div>
           </div>
         </div>
