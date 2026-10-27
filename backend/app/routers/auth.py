@@ -72,6 +72,7 @@ class LoginRequest(BaseModel):
 
 class GoogleAuthRequest(BaseModel):
     credential: Optional[str] = None # Google ID token
+    access_token: Optional[str] = None # Google OAuth2 access token
     email: Optional[EmailStr] = None
     name: Optional[str] = None
     picture: Optional[str] = None
@@ -235,13 +236,33 @@ def google_auth(data: GoogleAuthRequest, db: Session = Depends(get_db)):
                 name = data.name
             else:
                 raise HTTPException(status_code=400, detail=f"Google token verification failed: {e}")
+    elif data.access_token:
+        # Real Google OAuth2 Access Token verified directly with Google API
+        try:
+            import requests
+            resp = requests.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {data.access_token}"},
+                timeout=10
+            )
+            if not resp.ok:
+                raise HTTPException(status_code=400, detail=f"Google OAuth verification failed: {resp.text}")
+            user_info = resp.json()
+            email = user_info.get("email")
+            name = user_info.get("name")
+            picture = user_info.get("picture")
+            google_sub = user_info.get("sub")
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to verify Google access token: {e}")
     elif data.email:
         email = data.email
         name = data.name or data.email.split("@")[0].capitalize()
         picture = data.picture
         google_sub = data.google_id
     else:
-        raise HTTPException(status_code=400, detail="Missing Google credentials or email.")
+        raise HTTPException(status_code=400, detail="Missing Google credentials.")
 
     if not email:
         raise HTTPException(status_code=400, detail="Could not extract email from Google credential.")
