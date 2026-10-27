@@ -1,5 +1,6 @@
 import React from 'react';
-import { ShieldCheck, UserCheck, RefreshCw, Sparkles, BookOpen, Layers, BarChart3, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ShieldCheck, UserCheck, RefreshCw, Sparkles, BookOpen, Layers, BarChart3, Clock, Home } from 'lucide-react';
 
 export default function Header({
   activeRole,
@@ -21,20 +22,20 @@ export default function Header({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-900/20">
+          <Link to="/" className="flex items-center space-x-3 group transition" title="Go to Home / Landing Page">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-900/20 group-hover:scale-105 transition">
               <ShieldCheck className="w-6 h-6 text-gray-950 font-bold" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-xl tracking-tight text-white">SENTINEL</span>
+                <span className="font-extrabold text-xl tracking-tight text-white group-hover:text-amber-400 transition">SENTINEL</span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
                   MVP v1.0
                 </span>
               </div>
               <p className="text-xs text-gray-400">Grounded Brand & Compliance Engine</p>
             </div>
-          </div>
+          </Link>
 
           {/* Navigation Tabs */}
           <nav className="hidden md:flex items-center space-x-1 bg-gray-950/60 p-1 rounded-xl border border-gray-800">
@@ -121,6 +122,16 @@ export default function Header({
                 })}
               </div>
             </div>
+
+            {/* Public Site Link */}
+            <Link
+              to="/"
+              title="Return to Public Website"
+              className="hidden sm:flex items-center space-x-1 px-2.5 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition border border-gray-800 hover:border-gray-700 font-medium"
+            >
+              <Home className="w-3.5 h-3.5 text-amber-400" />
+              <span>Website</span>
+            </Link>
 
             {/* Reset Demo Button */}
             <button

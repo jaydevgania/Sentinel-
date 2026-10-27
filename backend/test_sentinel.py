@@ -104,6 +104,25 @@ def test_tamper_evident_audit_verification():
     assert data["valid"] is True, f"Tamper evident audit chain failed: {data}"
     assert data["total_events"] > 0
 
+def test_public_endpoints():
+    """
+    Enterprise public endpoints: Stats, Contact, Newsletter
+    """
+    stats_res = client.get("/api/stats")
+    assert stats_res.status_code == 200
+    assert "total_reviews_processed" in stats_res.json()
+
+    contact_res = client.post("/api/contact", json={
+        "name": "Enterprise Buyer",
+        "email": "buyer@enterprise.com",
+        "company": "Enterprise Tech Inc",
+        "team_size": "51-200",
+        "subject": "Enterprise Plan",
+        "message": "Interested in 500 seats."
+    })
+    assert contact_res.status_code == 200
+    assert contact_res.json()["status"] == "success"
+
 if __name__ == "__main__":
     print("Running Sentinel automated verification suite...")
     test_health()
@@ -116,6 +135,8 @@ if __name__ == "__main__":
     print("[PASS] All 6 Seeded Posts Verified (5 correctly flagged, 1 clean pass)")
     test_role_security_enforcement()
     print("[PASS] Role Security Enforced (Creator blocked, Manager permitted)")
+    test_public_endpoints()
+    print("[PASS] Enterprise Public Endpoints Verified (Stats & Contact API)")
     test_tamper_evident_audit_verification()
     print("[PASS] Cryptographic Audit Trail Verified")
     print("\nALL SECTION 11 TESTS PASSED WITH 100% SUCCESS!")
