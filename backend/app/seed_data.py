@@ -80,9 +80,15 @@ def seed_demo_workspace(db: Session, force_reset: bool = False) -> Workspace:
     if ws and not force_reset:
         return ws
 
-    if ws and force_reset:
+    # Clean up any leftover demo entities to avoid UNIQUE constraint conflicts
+    db.query(Asset).filter((Asset.workspace_id == DEMO_WORKSPACE_ID) | (Asset.id.in_(["asset-palette-01", "asset-logo-02", "asset-font-03"]))).delete(synchronize_session=False)
+    db.query(Fact).filter((Fact.workspace_id == DEMO_WORKSPACE_ID) | (Fact.id.in_(["fact-founding-01", "fact-outlets-02", "fact-steep-03", "fact-beans-04"]))).delete(synchronize_session=False)
+    db.query(Term).filter(Term.id.in_(["term-coldbrew-01", "term-teammembers-02", "term-brandname-03"])).delete(synchronize_session=False)
+    db.query(Rule).filter((Rule.workspace_id == DEMO_WORKSPACE_ID) | (Rule.id.in_(["rule-tone-01", "rule-term-01", "rule-msg-01", "rule-access-01", "rule-visual-01"]))).delete(synchronize_session=False)
+    db.query(User).filter(User.workspace_id == DEMO_WORKSPACE_ID).delete(synchronize_session=False)
+    if ws:
         db.delete(ws)
-        db.commit()
+    db.commit()
 
     # 1. Create Workspace
     workspace = Workspace(

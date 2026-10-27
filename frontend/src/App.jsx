@@ -10,20 +10,20 @@ import ReviewQueueScreen from './components/ReviewQueueScreen';
 import KnowledgeBaseScreen from './components/KnowledgeBaseScreen';
 import InsightsScreen from './components/InsightsScreen';
 import AuthModal from './components/AuthModal';
+import { useAuth } from './context/AuthContext';
 import {
-  fetchWorkspace, resetDemo, submitReview, getReview, fetchQueue,
-  getStoredUser, fetchMe, logoutUser
+  fetchWorkspace, resetDemo, submitReview, getReview, fetchQueue
 } from './api';
 
 export default function App() {
+  const { user: currentUser, logout: handleLogout, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('review');
-  const [activeRole, setActiveRole] = useState('creator');
+  const [activeRole, setActiveRole] = useState(currentUser?.role || 'creator');
   const [workspace, setWorkspace] = useState(null);
   const [samples, setSamples] = useState([]);
   const [selectedSample, setSelectedSample] = useState(null);
 
-  // Auth & Subscription State
-  const [currentUser, setCurrentUser] = useState(getStoredUser());
+  // Auth modal
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
   const [authSelectedPlan, setAuthSelectedPlan] = useState('pro');
@@ -67,20 +67,12 @@ export default function App() {
 
   useEffect(() => {
     initializeApp();
-    fetchMe().then(u => {
-      if (u) setCurrentUser(u);
-    }).catch(() => {});
   }, []);
 
   const handleOpenAuth = (mode = 'login', plan = 'pro') => {
     setAuthModalMode(mode);
     setAuthSelectedPlan(plan);
     setAuthModalOpen(true);
-  };
-
-  const handleLogout = () => {
-    logoutUser();
-    setCurrentUser(null);
   };
 
   const handleSelectSample = (sample) => {
@@ -102,7 +94,8 @@ export default function App() {
       const payload = {
         channel,
         purpose,
-        body_text: bodyText
+        body_text: bodyText,
+        ...(currentUser?.workspace_id ? { workspace_id: currentUser.workspace_id, author_id: currentUser.id } : {})
       };
       if (imageMetadata?.is_image) {
         payload.image_base64 = "seeded_demo_banner";
@@ -112,6 +105,9 @@ export default function App() {
       // Fetch enriched review with fact/rule previews
       const enriched = await getReview(reviewRes.id);
       setCurrentReview(enriched);
+
+      // Refresh user's review count in database
+      if (refreshProfile) refreshProfile().catch(() => {});
 
       // Update queue count
       const q = await fetchQueue();

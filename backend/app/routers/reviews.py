@@ -116,6 +116,11 @@ def submit_review(data: ReviewCreateRequest, db: Session = Depends(get_db)):
         db.add(db_finding)
         persisted_findings.append(db_finding)
 
+    # Update author's reviews_count in database
+    author_user = db.query(User).filter(User.id == author_id).first()
+    if author_user:
+        author_user.reviews_count = (author_user.reviews_count or 0) + 1
+
     db.commit()
     db.refresh(review)
 

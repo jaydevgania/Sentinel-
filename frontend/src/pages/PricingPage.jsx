@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
 import {
   Check,
@@ -206,6 +207,7 @@ function FAQItem({ question, answer }) {
 }
 
 export default function PricingPage() {
+  const { isAuthenticated, user } = useAuth();
   const [isAnnual, setIsAnnual] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTier, setModalTier] = useState('pro');
@@ -213,14 +215,34 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <nav className="flex items-center gap-2 text-sm text-gray-400">
-          <Link to="/" className="hover:text-amber-400 transition-colors">
-            Home
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-200">Pricing</span>
+      {/* Breadcrumb & Auth Bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <nav className="flex items-center justify-between text-sm text-gray-400">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="hover:text-amber-400 transition-colors flex items-center gap-1.5 font-medium">
+              <Shield className="w-4 h-4 text-amber-500" />
+              <span>Sentinel</span>
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-gray-200">Pricing</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {isAuthenticated ? (
+              <Link to="/app" className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                Launch App &rarr;
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="text-xs text-gray-400 hover:text-white transition font-medium">
+                  Sign In
+                </Link>
+                <Link to="/register" className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
         </nav>
       </div>
 

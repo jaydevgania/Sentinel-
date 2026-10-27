@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   Mail,
   Briefcase,
@@ -87,6 +88,7 @@ const initialForm = {
 };
 
 export default function ContactPage() {
+  const { isAuthenticated } = useAuth();
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -116,14 +118,33 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
-      {/* ── Breadcrumb ─────────────────────────────────────────────── */}
-      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-        <nav className="flex items-center gap-1.5 text-sm text-gray-400">
-          <Link to="/" className="transition hover:text-amber-400">
-            Home
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-gray-200">Contact</span>
+      {/* ── Breadcrumb & Auth ─────────────────────────────────────── */}
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <nav className="flex items-center justify-between text-sm text-gray-400">
+          <div className="flex items-center gap-1.5">
+            <Link to="/" className="transition hover:text-amber-400 font-medium">
+              Sentinel
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5" />
+            <span className="text-gray-200">Contact</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {isAuthenticated ? (
+              <Link to="/app" className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                Launch App &rarr;
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="text-xs text-gray-400 hover:text-white transition font-medium">
+                  Sign In
+                </Link>
+                <Link to="/register" className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
         </nav>
       </div>
 
