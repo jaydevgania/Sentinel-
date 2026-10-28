@@ -284,19 +284,52 @@ export default function GoogleSignInButton({
 
       {/* Error Notice */}
       {errorMessage && !popupBlocked && (
-        <div className="p-2.5 bg-red-950/40 border border-red-500/40 rounded-xl text-[11px] text-red-300 flex items-start space-x-2 text-left">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-red-400" />
-          <div className="flex-1">
-            <span>{errorMessage}</span>
-            <div className="mt-1 flex items-center space-x-3 text-[10px]">
-              <button
-                type="button"
-                onClick={handleDirectRedirect}
-                className="text-amber-400 hover:underline font-bold"
-              >
-                Try Again via Redirect
-              </button>
+        <div className="p-3 bg-red-950/50 border border-red-500/40 rounded-xl text-[11px] text-red-200 space-y-2 text-left">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+            <div className="flex-1">
+              <span className="font-semibold text-white">{errorMessage}</span>
             </div>
+          </div>
+
+          {/* Diagnostic Details */}
+          <div className="p-2 bg-gray-950/90 rounded-lg border border-gray-800 text-[10px] space-y-1 font-mono text-gray-300">
+            <div>
+              <span className="text-gray-500">Origin: </span>
+              <span className="text-amber-400 select-all">{currentOrigin}</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Redirect URI: </span>
+              <span className="text-amber-400 select-all">{redirectUri}</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Google Client ID: </span>
+              {activeClientId ? (
+                <span className="text-emerald-400">{activeClientId.slice(0, 16)}...apps.googleusercontent.com</span>
+              ) : (
+                <span className="text-red-400 font-bold">MISSING (Set VITE_GOOGLE_CLIENT_ID on Vercel and Redeploy)</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-1 text-[10px]">
+            <button
+              type="button"
+              onClick={handleDirectRedirect}
+              className="text-amber-400 hover:text-amber-300 underline font-bold cursor-pointer"
+            >
+              Continue via Direct Google Page
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard?.writeText(currentOrigin);
+                alert(`Copied Origin: ${currentOrigin}\nPaste this in Google Cloud Console under 'Authorized JavaScript origins'`);
+              }}
+              className="text-gray-400 hover:text-white transition cursor-pointer"
+            >
+              Copy Origin
+            </button>
           </div>
         </div>
       )}

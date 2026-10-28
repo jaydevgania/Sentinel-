@@ -39,7 +39,10 @@ export async function registerUser(data) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || 'Registration failed');
+    const detail = err.detail || (res.status === 404
+      ? `Backend not reached (404 at ${BASE_URL}/auth/register). Set VITE_API_URL in Vercel to your deployed backend URL (e.g. https://your-backend.onrender.com/api) and Redeploy.`
+      : `Registration failed with status ${res.status}`);
+    throw new Error(detail);
   }
   const result = await res.json();
   if (result.token) {
@@ -57,7 +60,10 @@ export async function loginUser(email, password) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || 'Invalid email or password');
+    const detail = err.detail || (res.status === 404
+      ? `Backend not reached (404 at ${BASE_URL}/auth/login). Set VITE_API_URL in Vercel to your deployed backend URL and Redeploy.`
+      : `Invalid email or password`);
+    throw new Error(detail);
   }
   const result = await res.json();
   if (result.token) {
@@ -75,7 +81,10 @@ export async function googleSignIn(data) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || 'Google authentication failed');
+    const detail = err.detail || (res.status === 404
+      ? `Backend not reached (404 at ${BASE_URL}/auth/google). Please verify VITE_API_URL on Vercel points to your live backend (e.g. https://your-backend.onrender.com/api).`
+      : `Google authentication failed (status ${res.status})`);
+    throw new Error(detail);
   }
   const result = await res.json();
   if (result.token) {
