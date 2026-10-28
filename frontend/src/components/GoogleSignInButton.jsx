@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Loader2, AlertCircle, ArrowRight } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowRight, Server, Check } from 'lucide-react';
+import { getApiBaseUrl, setApiBaseUrl } from '../api';
 
 export default function GoogleSignInButton({
   text = "Continue with Google",
@@ -11,6 +12,8 @@ export default function GoogleSignInButton({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [popupBlocked, setPopupBlocked] = useState(false);
+  const [customApiUrl, setCustomApiUrl] = useState(getApiBaseUrl() === '/api' ? '' : getApiBaseUrl());
+  const [savedSuccess, setSavedSuccess] = useState(false);
   const activeClientId = localStorage.getItem('sentinel_google_client_id') || import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   const googleBtnContainerRef = useRef(null);
@@ -311,6 +314,50 @@ export default function GoogleSignInButton({
               )}
             </div>
           </div>
+
+          {/* Backend Connector (Shown if API 404 / Not Found occurs) */}
+          {(errorMessage.toLowerCase().includes('not found') || errorMessage.toLowerCase().includes('404') || errorMessage.toLowerCase().includes('backend not reached')) && (
+            <div className="p-2.5 bg-gray-900 border border-amber-500/50 rounded-lg space-y-1.5 text-left text-gray-200">
+              <div className="flex items-center space-x-1.5 text-amber-300 font-bold text-[11px]">
+                <Server className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>Connect Live Backend (Render / Cloud)</span>
+              </div>
+              <p className="text-[10px] text-gray-400 leading-tight">
+                Vercel is attempting to reach <code className="text-amber-300 font-mono">{getApiBaseUrl()}</code>, which is not hosting your FastAPI backend. Enter your Render service URL below:
+              </p>
+              <div className="flex items-center space-x-1.5">
+                <input
+                  type="url"
+                  value={customApiUrl}
+                  onChange={(e) => {
+                    setCustomApiUrl(e.target.value);
+                    setSavedSuccess(false);
+                  }}
+                  placeholder="https://your-service.onrender.com/api"
+                  className="flex-1 bg-gray-950 border border-gray-700 rounded px-2 py-1 text-[10px] text-white focus:outline-none focus:border-amber-400 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!customApiUrl.trim()) {
+                      alert('Please enter your Render backend URL (e.g. https://your-backend.onrender.com/api)');
+                      return;
+                    }
+                    const saved = setApiBaseUrl(customApiUrl);
+                    setSavedSuccess(true);
+                    setErrorMessage(null);
+                    alert(`Connected live backend: ${saved}\nClick 'Continue as Jay' above to complete sign-in!`);
+                  }}
+                  className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold rounded text-[10px] transition shrink-0 cursor-pointer"
+                >
+                  {savedSuccess ? 'Connected!' : 'Connect'}
+                </button>
+              </div>
+              <p className="text-[9px] text-gray-500">
+                To make this permanent for all visitors, set <strong className="text-gray-400">VITE_API_URL</strong> in Vercel Settings &bull; Environment Variables and Redeploy.
+              </p>
+            </div>
+          )}
 
           <div className="flex items-center justify-between pt-1 text-[10px]">
             <button

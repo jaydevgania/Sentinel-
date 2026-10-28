@@ -1,4 +1,33 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+export function getApiBaseUrl() {
+  if (typeof window !== 'undefined') {
+    const custom = localStorage.getItem('sentinel_api_url');
+    if (custom) return custom.replace(/\/$/, '');
+  }
+  return (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+}
+
+export function setApiBaseUrl(url) {
+  if (typeof window !== 'undefined') {
+    if (url && url.trim()) {
+      let clean = url.trim().replace(/\/$/, '');
+      if (!clean.endsWith('/api') && !clean.includes('/api/')) {
+        clean = `${clean}/api`;
+      }
+      localStorage.setItem('sentinel_api_url', clean);
+      return clean;
+    } else {
+      localStorage.removeItem('sentinel_api_url');
+      return null;
+    }
+  }
+}
+
+// Dynamic BASE_URL object that resolves at runtime
+const BASE_URL = {
+  toString() { return getApiBaseUrl(); },
+  valueOf() { return getApiBaseUrl(); },
+  [Symbol.toPrimitive]() { return getApiBaseUrl(); }
+};
 
 // Auth Token Storage Helper
 export function getStoredToken() {
