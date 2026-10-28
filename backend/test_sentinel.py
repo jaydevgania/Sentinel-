@@ -125,13 +125,15 @@ def test_public_endpoints():
 
 def test_auth_and_subscriptions():
     """
-    Verify customer authentication access control & subscription checkout:
-    1. Unauthorized customer registration blocked (HTTP 403)
-    2. Developer grants customer access via POST /api/admin/grant-access
-    3. Approved customer logs in successfully (HTTP 200)
-    4. Subscription upgraded to Pro tier
+    Verify customer authentication & developer access permission:
+    1. Any customer registers freely for Studio Trial (HTTP 200)
+    2. Customer logs in successfully (HTTP 200)
+    3. Customer is BLOCKED from developer access /api/admin/customers (HTTP 403)
+    4. Developer devgania1@gmail.com can access /api/admin/customers (HTTP 200)
+    5. Customer upgrades subscription to Pro tier (HTTP 200)
     """
     import uuid
+    from app.routers.auth import create_token
     unique_email = f"customer_{uuid.uuid4().hex[:6]}@brandcorp.com"
     payload = {
         "name": "Alex Mercer",
@@ -142,31 +144,36 @@ def test_auth_and_subscriptions():
         "plan": "starter"
     }
 
-    # 1. Unapproved customer registration is blocked
-    unapproved_res = client.post("/api/auth/register", json=payload)
-    assert unapproved_res.status_code == 403
-    assert "Access Restricted" in unapproved_res.json()["detail"]
+    # 1. Any customer registers freely for Studio Trial
+    reg_res = client.post("/api/auth/register", json=payload)
+    assert reg_res.status_code == 200
+    reg_data = reg_res.json()
+    assert reg_data["status"] == "success"
+    token = reg_data["token"]
+    assert token
+    assert reg_data["user"]["subscription_status"] == "trialing"
+    assert reg_data["user"]["is_admin"] is False
 
-    # 2. Developer grants access
-    grant_res = client.post("/api/admin/grant-access", json={
-        "email": unique_email,
-        "notes": "Approved customer account"
-    })
-    assert grant_res.status_code == 200
-    assert grant_res.json()["status"] == "success"
-
-    # 3. Approved customer can now login
+    # 2. Customer logs in successfully
     login_res = client.post("/api/auth/login", json={
         "email": unique_email,
         "password": "Password123!"
     })
     assert login_res.status_code == 200
-    reg_data = login_res.json()
-    assert reg_data["status"] == "success"
-    token = reg_data["token"]
-    assert token
+    assert login_res.json()["status"] == "success"
 
-    # 4. Upgrade subscription
+    # 3. Customer is BLOCKED from developer panel (requires developer permission)
+    cust_admin_res = client.get("/api/admin/customers", headers={"Authorization": f"Bearer {token}"})
+    assert cust_admin_res.status_code == 403
+    assert "Developer Access" in cust_admin_res.json()["detail"]
+
+    # 4. Developer devgania1@gmail.com can access developer panel
+    dev_token = create_token("dev_user", "devgania1@gmail.com", "admin")
+    dev_admin_res = client.get("/api/admin/customers", headers={"Authorization": f"Bearer {dev_token}"})
+    assert dev_admin_res.status_code == 200
+    assert "total_customers" in dev_admin_res.json()
+
+    # 5. Customer can upgrade subscription
     upgrade_res = client.post("/api/subscriptions/checkout", json={
         "tier": "pro",
         "billing_period": "annual"
@@ -196,11 +203,34 @@ def test_admin_crm_database():
 def test_google_auth():
     """
     Verify Google Sign-In:
-    1. Sole developer devgania1@gmail.com logs in directly (is_admin=1)
-    2. External customer requires developer authorization
+    1. Any customer can log in with their Gmail to the studio for trial (HTTP 200, is_admin=False)
+    2. Customer cannot access developer database without developer authorization (HTTP 403)
+    3. Sole developer devgania1@gmail.com logs in directly with developer rights (is_admin=True)
+    4. Developer grants developer access to external customer
+    5. Authorized customer now has developer access
     """
     import time
-    # 1. Developer Google Login
+    # 1. Any customer logs in with Google (Gmail) for Studio Trial
+    unique_email = f"google_cust_{int(time.time())}@gmail.com"
+    cust_payload = {
+        "email": unique_email,
+        "name": "External Trial User",
+        "google_id": f"g_id_{int(time.time())}"
+    }
+    cust_res = client.post("/api/auth/google", json=cust_payload)
+    assert cust_res.status_code == 200
+    cust_data = cust_res.json()
+    assert cust_data["status"] == "success"
+    cust_token = cust_data["token"]
+    assert cust_data["user"]["is_admin"] is False
+    assert cust_data["user"]["subscription_status"] == "trialing"
+
+    # 2. Customer is blocked from developer database
+    dev_check_res = client.get("/api/admin/customers", headers={"Authorization": f"Bearer {cust_token}"})
+    assert dev_check_res.status_code == 403
+    assert "Developer Access" in dev_check_res.json()["detail"]
+
+    # 3. Developer Google Login gets is_admin=True
     dev_payload = {
         "email": "devgania1@gmail.com",
         "name": "Devgania Developer",
@@ -208,32 +238,20 @@ def test_google_auth():
     }
     dev_res = client.post("/api/auth/google", json=dev_payload)
     assert dev_res.status_code == 200
-    assert dev_res.json()["user"]["is_admin"] is True
+    dev_data = dev_res.json()
+    assert dev_data["user"]["is_admin"] is True
+    dev_token = dev_data["token"]
 
-    # 2. External customer Google login without approval gets 403
-    unique_email = f"google_cust_{int(time.time())}@clientcorp.com"
-    cust_payload = {
-        "email": unique_email,
-        "name": "External Client",
-        "google_id": f"g_id_{int(time.time())}"
-    }
-    unappr_res = client.post("/api/auth/google", json=cust_payload)
-    assert unappr_res.status_code == 403
-    assert "Access Restricted" in unappr_res.json()["detail"]
-
-    # 3. Developer grants access
-    from app.routers.auth import create_token
-    dev_token = create_token("dev_user", "devgania1@gmail.com", "admin")
+    # 4. Developer grants developer access to external customer
     grant_res = client.post("/api/admin/grant-access", json={
         "email": unique_email,
-        "notes": "Approved by devgania1"
+        "notes": "Approved developer access by devgania1"
     }, headers={"Authorization": f"Bearer {dev_token}"})
     assert grant_res.status_code == 200
 
-    # 4. Authorized customer now signs in successfully
-    auth_res = client.post("/api/auth/google", json=cust_payload)
-    assert auth_res.status_code == 200
-    assert auth_res.json()["user"]["email"] == unique_email
+    # 5. Customer now has developer access
+    auth_check_res = client.get("/api/admin/customers", headers={"Authorization": f"Bearer {cust_token}"})
+    assert auth_check_res.status_code == 200
 
 def test_customer_guidelines_upload():
     """

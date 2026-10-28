@@ -127,38 +127,65 @@ export async function upgradeSubscription(tier, billingPeriod = 'monthly') {
   return result;
 }
 
-// Admin CRM APIs (To view all customers & contact submissions)
+// Admin CRM APIs (To view all customers & contact submissions - Developer only)
 export async function fetchAdminCustomers(tier = null) {
+  const token = getStoredToken();
   const url = tier ? `${BASE_URL}/admin/customers?tier=${tier}` : `${BASE_URL}/admin/customers`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to load customer database');
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to load customer database');
+  }
   return res.json();
 }
 
 export async function fetchAdminLeads() {
-  const res = await fetch(`${BASE_URL}/admin/leads`);
-  if (!res.ok) throw new Error('Failed to load leads database');
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/admin/leads`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to load leads database');
+  }
   return res.json();
 }
 
 export async function updateAdminLead(leadId, status) {
+  const token = getStoredToken();
   const res = await fetch(`${BASE_URL}/admin/leads/${leadId}?status=${status}`, {
-    method: 'PATCH'
+    method: 'PATCH',
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
   });
-  if (!res.ok) throw new Error('Failed to update lead status');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to update lead status');
+  }
   return res.json();
 }
 
 export async function fetchWhitelist() {
-  const res = await fetch(`${BASE_URL}/admin/whitelist`);
-  if (!res.ok) throw new Error('Failed to load access whitelist');
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/admin/whitelist`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to load access whitelist');
+  }
   return res.json();
 }
 
 export async function grantCustomerAccess(email, notes = 'Granted by developer') {
+  const token = getStoredToken();
   const res = await fetch(`${BASE_URL}/admin/grant-access`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
     body: JSON.stringify({ email, notes })
   });
   if (!res.ok) {
@@ -169,9 +196,13 @@ export async function grantCustomerAccess(email, notes = 'Granted by developer')
 }
 
 export async function revokeCustomerAccess(email) {
+  const token = getStoredToken();
   const res = await fetch(`${BASE_URL}/admin/revoke-access`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
     body: JSON.stringify({ email })
   });
   if (!res.ok) {

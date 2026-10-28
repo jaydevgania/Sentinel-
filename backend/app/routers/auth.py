@@ -49,9 +49,33 @@ def get_current_user_optional(authorization: Optional[str] = Header(None), db: S
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id = payload.get("sub")
-        if not user_id:
-            return None
-        return db.query(User).filter(User.id == user_id).first()
+        email = payload.get("email")
+        user = None
+        if user_id:
+            user = db.query(User).filter(User.id == user_id).first()
+        if not user and email:
+            user = db.query(User).filter(User.email == email.lower().strip()).first()
+        if not user and email and is_developer_email(email):
+            ws = db.query(Workspace).filter(Workspace.id == "ws-dev-master").first()
+            if not ws:
+                ws = Workspace(id="ws-dev-master", name="Developer Master Workspace", brand_name="Developer Console")
+                db.add(ws)
+                db.flush()
+            user = User(
+                id=user_id or "usr-dev-master",
+                workspace_id=ws.id,
+                name="Platform Developer",
+                email=email.lower().strip(),
+                role="admin",
+                is_admin=1,
+                is_approved=1,
+                subscription_tier="enterprise",
+                subscription_status="active"
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        return user
     except Exception:
         return None
 
@@ -66,26 +90,41 @@ def is_developer_email(email: str) -> bool:
         return False
     return email.lower().strip() == SOLE_DEVELOPER_EMAIL
 
-def check_access_permission(email: str, db: Session) -> bool:
+def has_developer_access(user: Optional[User], db: Session) -> bool:
     """
     Returns True if:
-    1. Email is the developer's email
-    2. Email is on the developer's Access Whitelist
-    3. User exists and is_approved == 1
+    1. User is the sole platform developer (devgania1@gmail.com)
+    2. User has been granted is_admin flag
+    3. User email is on the developer's Access Whitelist
     """
-    clean_email = email.lower().strip()
+    if not user or not user.email:
+        return False
+    clean_email = user.email.lower().strip()
     if is_developer_email(clean_email):
         return True
-
+    if user.is_admin:
+        return True
     whitelisted = db.query(AccessWhitelist).filter(AccessWhitelist.email == clean_email).first()
     if whitelisted:
         return True
-
-    existing_user = db.query(User).filter(User.email == clean_email).first()
-    if existing_user and existing_user.is_approved:
-        return True
-
     return False
+
+def require_developer_access(
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+) -> User:
+    """
+    Strict guard for developer panel and customer database:
+    Only devgania1@gmail.com or accounts authorized by the developer can proceed.
+    """
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Authentication required for developer access.")
+    if not has_developer_access(current_user, db):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Developer Access Restricted: Developer access requires authorization from the developer ({SOLE_DEVELOPER_EMAIL})."
+        )
+    return current_user
 
 # Schemas
 class GrantAccessRequest(BaseModel):
@@ -165,13 +204,10 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     ]
     db.add_all(default_rules)
 
-    # First user or admin email check
+    # Developer check: developer email or whitelisted by developer gets is_admin=1
     is_dev = is_developer_email(email_clean)
     whitelisted = db.query(AccessWhitelist).filter(AccessWhitelist.email == email_clean).first()
-    has_access = is_dev or (whitelisted is not None)
-
-    is_admin = 1 if is_dev else 0
-    is_approved = 1 if has_access else 0
+    is_admin = 1 if (is_dev or whitelisted) else 0
 
     user = User(
         workspace_id=workspace.id,
@@ -181,29 +217,23 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
         company_name=company,
         role="manager", # Workspace owner is manager
         is_admin=is_admin,
-        is_approved=is_approved,
+        is_approved=1, # Customers have full studio trial access!
         subscription_tier=data.plan.lower() if data.plan else "starter",
-        subscription_status="active",
+        subscription_status="trialing", # Customer trial access
         subscription_period="monthly",
         reviews_count=0
     )
     db.add(user)
 
-    if not has_access:
-        # Submit access request lead for developer approval
-        db.add(Lead(
-            name=data.name,
-            email=email_clean,
-            company=company,
-            subject="Customer Access Request (Registration)",
-            message="Customer registration access request pending developer authorization.",
-            status="pending_approval"
-        ))
-        db.commit()
-        raise HTTPException(
-            status_code=403,
-            detail="Access Restricted: Customer access can only be accessed by the developer or accounts approved by the developer. Your request has been queued for developer approval."
-        )
+    # Log in developer CRM leads database for recordkeeping
+    db.add(Lead(
+        name=data.name,
+        email=email_clean,
+        company=company,
+        subject="Customer Studio Registration",
+        message=f"Customer registered for Studio Trial on plan: {data.plan or 'starter'}",
+        status="trial_active"
+    ))
 
     db.commit()
     db.refresh(user)
@@ -216,7 +246,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
         actor_id=user.id,
         action="CUSTOMER_REGISTERED",
         target=f"user:{user.id}",
-        payload={"email": user.email, "company": company, "plan": user.subscription_tier}
+        payload={"email": user.email, "company": company, "plan": user.subscription_tier, "status": "trialing"}
     )
 
     return {
@@ -244,19 +274,17 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(data.password, user.hashed_password or ""):
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
-    # Access control: developer or granted by developer
-    is_dev = is_developer_email(email_clean)
-    if not is_dev and not user.is_approved:
-        # Check if in whitelist
+    # Any customer can log in to the studio for trial!
+    if not user.is_approved:
+        user.is_approved = 1
+
+    # Check developer admin rights
+    if is_developer_email(email_clean):
+        user.is_admin = 1
+    else:
         whitelisted = db.query(AccessWhitelist).filter(AccessWhitelist.email == email_clean).first()
         if whitelisted:
-            user.is_approved = 1
-            db.commit()
-        else:
-            raise HTTPException(
-                status_code=403,
-                detail="Access Restricted: Customer access can only be accessed by the developer or accounts approved by the developer. Please contact the developer to unlock access."
-            )
+            user.is_admin = 1
 
     user.last_login_at = datetime.now(timezone.utc)
     db.commit()
@@ -346,18 +374,12 @@ def google_auth(data: GoogleAuthRequest, db: Session = Depends(get_db)):
 
     is_dev = is_developer_email(email_clean)
     whitelisted = db.query(AccessWhitelist).filter(AccessWhitelist.email == email_clean).first()
-    has_access = is_dev or (whitelisted is not None)
+    has_dev_access = is_dev or (whitelisted is not None)
 
     if user:
-        if not user.is_approved and not has_access:
-            raise HTTPException(
-                status_code=403,
-                detail=f"Access Restricted: Customer access can only be accessed by the developer or accounts approved by the developer. Google account ({email_clean}) is not authorized yet."
-            )
-        if not user.is_approved and has_access:
-            user.is_approved = 1
-            db.commit()
-
+        user.is_approved = 1
+        if has_dev_access:
+            user.is_admin = 1
         user.last_login_at = datetime.now(timezone.utc)
         if name and not user.name:
             user.name = name
@@ -385,14 +407,14 @@ def google_auth(data: GoogleAuthRequest, db: Session = Depends(get_db)):
                 "role": user.role,
                 "is_admin": bool(user.is_admin),
                 "subscription_tier": user.subscription_tier or "starter",
-                "subscription_status": user.subscription_status or "active",
+                "subscription_status": user.subscription_status or "trialing",
                 "workspace_id": user.workspace_id,
                 "brand_name": ws.brand_name if ws else user.name,
                 "picture": picture
             }
         }
     else:
-        # Register new Google customer with dedicated brand workspace
+        # Register new Google customer with dedicated brand workspace and immediate trial access
         company = f"{name}'s Company" if name else "My Brand Company"
         brand = f"{name}'s Brand" if name else "My Brand"
 
@@ -422,8 +444,7 @@ def google_auth(data: GoogleAuthRequest, db: Session = Depends(get_db)):
         ]
         db.add_all(default_rules)
 
-        is_admin = 1 if is_dev else 0
-        is_approved = 1 if has_access else 0
+        is_admin = 1 if has_dev_access else 0
 
         user = User(
             workspace_id=workspace.id,
@@ -433,29 +454,23 @@ def google_auth(data: GoogleAuthRequest, db: Session = Depends(get_db)):
             company_name=company,
             role="manager",
             is_admin=is_admin,
-            is_approved=is_approved,
+            is_approved=1, # Customers have full studio trial access!
             subscription_tier="starter",
-            subscription_status="active",
+            subscription_status="trialing", # Trial access for all customers
             subscription_period="monthly",
             reviews_count=0
         )
         db.add(user)
 
-        if not has_access:
-            # Submit access request lead for developer approval
-            db.add(Lead(
-                name=user.name,
-                email=email_clean,
-                company=company,
-                subject="Google Sign-In Access Request",
-                message="Google Sign-In access request pending developer authorization.",
-                status="pending_approval"
-            ))
-            db.commit()
-            raise HTTPException(
-                status_code=403,
-                detail=f"Access Restricted: Customer access can only be accessed by the developer or accounts approved by the developer. Your Google account ({email_clean}) has been submitted for authorization."
-            )
+        # Log new Google lead in developer CRM
+        db.add(Lead(
+            name=user.name,
+            email=email_clean,
+            company=company,
+            subject="Google Sign-In Customer Trial",
+            message="Customer signed in with Google for Studio Trial access.",
+            status="trial_active"
+        ))
 
         db.commit()
         db.refresh(user)
@@ -467,7 +482,7 @@ def google_auth(data: GoogleAuthRequest, db: Session = Depends(get_db)):
             actor_id=user.id,
             action="GOOGLE_REGISTER",
             target=f"user:{user.id}",
-            payload={"email": user.email, "company": company}
+            payload={"email": user.email, "company": company, "status": "trialing"}
         )
 
         return {
@@ -561,16 +576,18 @@ def checkout_subscription(
         }
     }
 
-# 5. Customer Database for the Owner/Admin ("those who logins in it i get their database")
+# 5. Customer Database for the Developer/Admin
 @router.get("/admin/customers")
 def get_customer_database(
     search: Optional[str] = None,
     tier: Optional[str] = None,
+    dev_user: User = Depends(require_developer_access),
     db: Session = Depends(get_db)
 ):
     """
     Returns full database of all customers who registered, logged in,
     their subscription tiers, review counts, and company details.
+    Restricted strictly to the platform developer (devgania1@gmail.com) or authorized developer admins.
     """
     query = db.query(User).order_by(User.created_at.desc())
     if tier:
@@ -603,9 +620,12 @@ def get_customer_database(
         "customers": results
     }
 
-# 6. Leads Database for the Owner/Admin (Contact Form submissions)
+# 6. Leads Database for the Developer/Admin (Contact Form submissions & Trial signups)
 @router.get("/admin/leads")
-def get_leads_database(db: Session = Depends(get_db)):
+def get_leads_database(
+    dev_user: User = Depends(require_developer_access),
+    db: Session = Depends(get_db)
+):
     leads = db.query(Lead).order_by(Lead.created_at.desc()).all()
     return {
         "total_leads": len(leads),
@@ -625,26 +645,31 @@ def get_leads_database(db: Session = Depends(get_db)):
         ]
     }
 
-# 7. Update Lead Status & Auto-grant access on approval
+# 7. Update Lead Status
 @router.patch("/admin/leads/{lead_id}")
-def update_lead_status(lead_id: str, status: str, db: Session = Depends(get_db)):
+def update_lead_status(
+    lead_id: str,
+    status: str,
+    dev_user: User = Depends(require_developer_access),
+    db: Session = Depends(get_db)
+):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     lead.status = status
 
-    # If lead is approved by developer, automatically whitelist and approve customer
     if status.lower() == "approved":
         clean_email = lead.email.lower().strip()
         existing_wl = db.query(AccessWhitelist).filter(AccessWhitelist.email == clean_email).first()
         if not existing_wl:
             db.add(AccessWhitelist(
                 email=clean_email,
-                granted_by="developer",
-                notes=f"Approved from Lead #{lead.id}"
+                granted_by=dev_user.email,
+                notes=f"Approved developer access from Lead #{lead.id}"
             ))
         user = db.query(User).filter(User.email == clean_email).first()
         if user:
+            user.is_admin = 1
             user.is_approved = 1
 
     db.commit()
@@ -652,7 +677,10 @@ def update_lead_status(lead_id: str, status: str, db: Session = Depends(get_db))
 
 # 8. Whitelist & Developer Access Control Endpoints
 @router.get("/admin/whitelist")
-def get_whitelist(db: Session = Depends(get_db)):
+def get_whitelist(
+    dev_user: User = Depends(require_developer_access),
+    db: Session = Depends(get_db)
+):
     whitelist = db.query(AccessWhitelist).order_by(AccessWhitelist.created_at.desc()).all()
     return {
         "developer_emails": DEVELOPER_EMAILS,
@@ -669,7 +697,11 @@ def get_whitelist(db: Session = Depends(get_db)):
     }
 
 @router.post("/admin/grant-access")
-def grant_access(data: GrantAccessRequest, db: Session = Depends(get_db)):
+def grant_access(
+    data: GrantAccessRequest,
+    dev_user: User = Depends(require_developer_access),
+    db: Session = Depends(get_db)
+):
     clean_email = data.email.lower().strip()
 
     # 1. Add to whitelist if not exists
@@ -677,14 +709,17 @@ def grant_access(data: GrantAccessRequest, db: Session = Depends(get_db)):
     if not wl:
         wl = AccessWhitelist(
             email=clean_email,
-            granted_by="developer",
-            notes=data.notes or "Granted by developer"
+            granted_by=dev_user.email,
+            notes=data.notes or "Developer access granted"
         )
         db.add(wl)
+    else:
+        wl.notes = data.notes or "Developer access granted"
 
-    # 2. Update user if exists
+    # 2. Update user to is_admin = 1 if exists
     user = db.query(User).filter(User.email == clean_email).first()
     if user:
+        user.is_admin = 1
         user.is_approved = 1
 
     # 3. Update any pending leads for this email
@@ -695,27 +730,31 @@ def grant_access(data: GrantAccessRequest, db: Session = Depends(get_db)):
     db.commit()
     return {
         "status": "success",
-        "message": f"Customer access granted to {clean_email}",
+        "message": f"Developer access granted to {clean_email}",
         "email": clean_email
     }
 
 @router.post("/admin/revoke-access")
-def revoke_access(data: RevokeAccessRequest, db: Session = Depends(get_db)):
+def revoke_access(
+    data: RevokeAccessRequest,
+    dev_user: User = Depends(require_developer_access),
+    db: Session = Depends(get_db)
+):
     clean_email = data.email.lower().strip()
     if is_developer_email(clean_email):
-        raise HTTPException(status_code=400, detail="Cannot revoke access from developer email.")
+        raise HTTPException(status_code=400, detail="Cannot revoke access from platform developer.")
 
     # Remove from whitelist
     db.query(AccessWhitelist).filter(AccessWhitelist.email == clean_email).delete()
 
-    # Update user is_approved = 0
+    # Update user is_admin = 0
     user = db.query(User).filter(User.email == clean_email).first()
     if user:
-        user.is_approved = 0
+        user.is_admin = 0
 
     db.commit()
     return {
         "status": "success",
-        "message": f"Customer access revoked for {clean_email}",
+        "message": f"Developer access revoked for {clean_email}",
         "email": clean_email
     }
