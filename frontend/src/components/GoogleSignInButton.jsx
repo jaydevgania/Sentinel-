@@ -24,8 +24,12 @@ export default function GoogleSignInButton({
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/login';
   const redirectUri = `${currentOrigin}${currentPath}`;
 
-  // Clear timer on unmount
+  // Clear timer on unmount & sanitize stored API URL
   useEffect(() => {
+    const existing = localStorage.getItem('sentinel_api_url');
+    if (existing && !existing.endsWith('/api') && !existing.includes('/api/')) {
+      localStorage.setItem('sentinel_api_url', `${existing.replace(/\/$/, '')}/api`);
+    }
     return () => {
       if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
     };
@@ -359,7 +363,7 @@ export default function GoogleSignInButton({
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-1 text-[10px]">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[10px]">
             <button
               type="button"
               onClick={handleDirectRedirect}
@@ -367,16 +371,28 @@ export default function GoogleSignInButton({
             >
               Continue via Direct Google Page
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard?.writeText(currentOrigin);
-                alert(`Copied Origin: ${currentOrigin}\nPaste this in Google Cloud Console under 'Authorized JavaScript origins'`);
-              }}
-              className="text-gray-400 hover:text-white transition cursor-pointer"
-            >
-              Copy Origin
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(currentOrigin);
+                  alert(`Copied Origin: ${currentOrigin}\nPaste this in Google Cloud Console under 'Authorized JavaScript origins'`);
+                }}
+                className="text-gray-400 hover:text-white transition cursor-pointer underline"
+              >
+                Copy Origin
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(redirectUri);
+                  alert(`Copied Redirect URI: ${redirectUri}\nPaste this in Google Cloud Console under 'Authorized redirect URIs'`);
+                }}
+                className="text-gray-400 hover:text-white transition cursor-pointer underline"
+              >
+                Copy Redirect URI
+              </button>
+            </div>
           </div>
         </div>
       )}

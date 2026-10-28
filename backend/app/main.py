@@ -49,7 +49,8 @@ app.include_router(rules.router)
 app.include_router(reviews.router)
 app.include_router(insights.router)
 app.include_router(public.router)
-app.include_router(auth.router)
+app.include_router(auth.router, prefix="/api")
+app.include_router(auth.router, prefix="", include_in_schema=False)
 
 @app.get("/health")
 def health_check():

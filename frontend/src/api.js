@@ -1,11 +1,21 @@
 export function getApiBaseUrl() {
   if (typeof window !== 'undefined') {
-    const custom = localStorage.getItem('sentinel_api_url');
-    if (custom) return custom.replace(/\/$/, '');
+    let custom = localStorage.getItem('sentinel_api_url');
+    if (custom) {
+      custom = custom.trim().replace(/\/$/, '');
+      if (!custom.endsWith('/api') && !custom.includes('/api/')) {
+        custom = `${custom}/api`;
+      }
+      return custom;
+    }
   }
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && envUrl.trim() && envUrl !== '/api') {
-    return envUrl.trim().replace(/\/$/, '');
+    let clean = envUrl.trim().replace(/\/$/, '');
+    if (!clean.endsWith('/api') && !clean.includes('/api/')) {
+      clean = `${clean}/api`;
+    }
+    return clean;
   }
   // Auto-connect to live Render backend on production Vercel
   if (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com'))) {

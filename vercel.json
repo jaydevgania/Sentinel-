@@ -9,6 +9,10 @@
       "destination": "https://sentinel-backend-q89c.onrender.com/api/:match*"
     },
     {
+      "source": "/auth/:match*",
+      "destination": "https://sentinel-backend-q89c.onrender.com/api/auth/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
