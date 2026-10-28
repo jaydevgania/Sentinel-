@@ -3,7 +3,15 @@ export function getApiBaseUrl() {
     const custom = localStorage.getItem('sentinel_api_url');
     if (custom) return custom.replace(/\/$/, '');
   }
-  return (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && envUrl.trim() && envUrl !== '/api') {
+    return envUrl.trim().replace(/\/$/, '');
+  }
+  // Auto-connect to live Render backend on production Vercel
+  if (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com'))) {
+    return 'https://sentinel-backend-q89c.onrender.com/api';
+  }
+  return '/api';
 }
 
 export function setApiBaseUrl(url) {
