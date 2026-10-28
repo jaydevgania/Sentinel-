@@ -16,19 +16,29 @@ from ..engine.deterministic import DeterministicChecker
 from ..engine.ai_adapter import ai_adapter
 from ..engine.compliance_scorer import calculate_compliance_score
 from ..engine.audit import record_audit_event, verify_audit_chain
+from .auth import get_current_user_optional
 
 router = APIRouter(prefix="/api", tags=["reviews"])
 
 @router.post("/reviews", response_model=ReviewResponse)
-def submit_review(data: ReviewCreateRequest, db: Session = Depends(get_db)):
-    ws_id = data.workspace_id or DEMO_WORKSPACE_ID
-    author_id = data.author_id or CREATOR_USER_ID
+def submit_review(
+    data: ReviewCreateRequest,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    ws_id = data.workspace_id or (current_user.workspace_id if current_user else DEMO_WORKSPACE_ID)
+    author_id = data.author_id or (current_user.id if current_user else CREATOR_USER_ID)
 
-    # 1. Load Knowledge Base
+    # 1. Load Knowledge Base strictly for this brand workspace
     rules = db.query(Rule).filter(Rule.workspace_id == ws_id).all()
-    terms = db.query(Term).all()
-    facts = db.query(Fact).filter((Fact.workspace_id == ws_id) | (Fact.workspace_id == None)).all()
-    assets = db.query(Asset).filter((Asset.workspace_id == ws_id) | (Asset.workspace_id == None)).all()
+    if ws_id == DEMO_WORKSPACE_ID:
+        terms = db.query(Term).filter((Term.workspace_id == DEMO_WORKSPACE_ID) | (Term.workspace_id == None)).all()
+        facts = db.query(Fact).filter((Fact.workspace_id == DEMO_WORKSPACE_ID) | (Fact.workspace_id == None)).all()
+        assets = db.query(Asset).filter((Asset.workspace_id == DEMO_WORKSPACE_ID) | (Asset.workspace_id == None)).all()
+    else:
+        terms = db.query(Term).filter(Term.workspace_id == ws_id).all()
+        facts = db.query(Fact).filter(Fact.workspace_id == ws_id).all()
+        assets = db.query(Asset).filter(Asset.workspace_id == ws_id).all()
 
     # 2. Run Deterministic Checker
     metadata = {}

@@ -16,6 +16,9 @@ class Workspace(Base):
 
     users = relationship("User", back_populates="workspace", cascade="all, delete-orphan")
     rules = relationship("Rule", back_populates="workspace", cascade="all, delete-orphan")
+    terms = relationship("Term", back_populates="workspace", cascade="all, delete-orphan")
+    facts = relationship("Fact", back_populates="workspace", cascade="all, delete-orphan")
+    assets = relationship("Asset", back_populates="workspace", cascade="all, delete-orphan")
     contents = relationship("Content", back_populates="workspace", cascade="all, delete-orphan")
 
 class User(Base):
@@ -102,11 +105,13 @@ class Term(Base):
     __tablename__ = "terms"
 
     id = Column(String(36), primary_key=True, default=gen_uuid)
+    workspace_id = Column(String(36), ForeignKey("workspaces.id"), nullable=True)
     preferred = Column(String(255), nullable=False)
     banned_variants = Column(JSON, nullable=False, default=list) # List[str]
     note = Column(Text, nullable=True)
     rule_id = Column(String(36), ForeignKey("rules.id"), nullable=True)
 
+    workspace = relationship("Workspace", back_populates="terms")
     rule = relationship("Rule", back_populates="terms")
 
 class Fact(Base):
@@ -120,6 +125,8 @@ class Fact(Base):
     valid_to = Column(String(50), nullable=True)
     embedding = Column(JSON, nullable=True)
 
+    workspace = relationship("Workspace", back_populates="facts")
+
 class Asset(Base):
     __tablename__ = "assets"
 
@@ -128,6 +135,8 @@ class Asset(Base):
     type = Column(String(50), nullable=False) # logo, palette, font
     value = Column(Text, nullable=False) # hex code, file path, font name
     usage_notes = Column(Text, nullable=True)
+
+    workspace = relationship("Workspace", back_populates="assets")
 
 class Content(Base):
     __tablename__ = "contents"

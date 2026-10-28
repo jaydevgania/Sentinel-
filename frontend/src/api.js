@@ -272,23 +272,124 @@ export async function fetchHistory(reviewId) {
   return res.json();
 }
 
-export async function fetchRules() {
-  const res = await fetch(`${BASE_URL}/rules`);
+export async function fetchRules(workspaceId = null) {
+  const token = getStoredToken();
+  const url = workspaceId ? `${BASE_URL}/rules?workspace_id=${workspaceId}` : `${BASE_URL}/rules`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) throw new Error('Failed to load rules');
   return res.json();
 }
 
-export async function fetchTerms() {
-  const res = await fetch(`${BASE_URL}/terms`);
+export async function createRule(data) {
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/rules`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to create rule');
+  }
   return res.json();
 }
 
-export async function fetchFacts() {
-  const res = await fetch(`${BASE_URL}/facts`);
+export async function deleteRule(id) {
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/rules/${id}`, {
+    method: 'DELETE',
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) throw new Error('Failed to delete rule');
   return res.json();
 }
 
-export async function fetchAssets() {
-  const res = await fetch(`${BASE_URL}/assets`);
+export async function fetchTerms(workspaceId = null) {
+  const token = getStoredToken();
+  const url = workspaceId ? `${BASE_URL}/terms?workspace_id=${workspaceId}` : `${BASE_URL}/terms`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) throw new Error('Failed to load terminology');
+  return res.json();
+}
+
+export async function createTerm(data) {
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/terms`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to create term');
+  }
+  return res.json();
+}
+
+export async function deleteTerm(id) {
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/terms/${id}`, {
+    method: 'DELETE',
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) throw new Error('Failed to delete term');
+  return res.json();
+}
+
+export async function fetchFacts(workspaceId = null) {
+  const token = getStoredToken();
+  const url = workspaceId ? `${BASE_URL}/facts?workspace_id=${workspaceId}` : `${BASE_URL}/facts`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) throw new Error('Failed to load facts');
+  return res.json();
+}
+
+export async function createFact(data) {
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/facts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to create fact');
+  }
+  return res.json();
+}
+
+export async function deleteFact(id) {
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/facts/${id}`, {
+    method: 'DELETE',
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) throw new Error('Failed to delete fact');
+  return res.json();
+}
+
+export async function fetchAssets(workspaceId = null) {
+  const token = getStoredToken();
+  const url = workspaceId ? `${BASE_URL}/assets?workspace_id=${workspaceId}` : `${BASE_URL}/assets`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!res.ok) throw new Error('Failed to load assets');
   return res.json();
 }
 
@@ -305,10 +406,15 @@ export async function verifyAuditChain() {
 }
 
 export async function importSourceFile(formData) {
+  const token = getStoredToken();
   const res = await fetch(`${BASE_URL}/sources/import`, {
     method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData
   });
-  if (!res.ok) throw new Error('Failed to import document');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to import document');
+  }
   return res.json();
 }

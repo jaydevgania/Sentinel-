@@ -85,7 +85,7 @@ export default function Header({
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>Knowledge Base</span>
+              <span>{currentUser ? 'Company Guidelines' : 'Knowledge Base'}</span>
             </button>
 
             <button

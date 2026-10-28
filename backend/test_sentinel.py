@@ -235,6 +235,102 @@ def test_google_auth():
     assert auth_res.status_code == 200
     assert auth_res.json()["user"]["email"] == unique_email
 
+def test_customer_guidelines_upload():
+    """
+    Test customer upload of brand guidelines (PDF/TXT), extraction of rules,
+    manual rule/term/fact authoring, and workspace isolation.
+    """
+    import io
+    from app.routers.auth import create_token
+    from app.models import Workspace, User
+    from app.database import SessionLocal
+
+    db = SessionLocal()
+    # Create a unique test customer workspace
+    ws = Workspace(name="Acme Motors Workspace", brand_name="Acme Motors")
+    db.add(ws)
+    db.commit()
+
+    token = create_token("acme-user-id", "engineer@acmemotors.com", "manager")
+
+    # 1. Upload Guideline Document (TXT/PDF simulation)
+    guideline_text = """
+    Acme Motors Brand Guidelines & Compliance Policy:
+    1. Tone for Acme Motors must be futuristic, exhilarating, and hyper-precise.
+    2. Never use internet slang or casual memes in official automotive press releases.
+    3. Always prefer 'Electric Hypercar' instead of 'battery car' or 'golf cart'.
+    4. Verified Fact: Acme Motors achieves 0 to 60 mph in 1.89 seconds.
+    5. Prohibited: Never make disparaging comparisons to competitor internal combustion vehicles.
+    """
+
+    file_bytes = guideline_text.encode('utf-8')
+    files = {"file": ("acme_guidelines.txt", io.BytesIO(file_bytes), "text/plain")}
+    data = {
+        "workspace_id": ws.id,
+        "brand_name": "Acme Motors",
+        "category": "messaging"
+    }
+
+    import_res = client.post(
+        "/api/sources/import",
+        files=files,
+        data=data,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert import_res.status_code == 200, f"Import failed: {import_res.text}"
+    result = import_res.json()
+    assert result["status"] == "success"
+    assert result["extracted_clauses_count"] >= 3
+    assert result["workspace_id"] == ws.id
+
+    # 2. Verify rules retrieved for Acme workspace
+    rules_res = client.get(f"/api/rules?workspace_id={ws.id}")
+    assert rules_res.status_code == 200
+    acme_rules = rules_res.json()
+    assert len(acme_rules) >= 3
+
+    # 3. Create manual custom rule
+    new_rule_res = client.post("/api/rules", json={
+        "workspace_id": ws.id,
+        "category": "tone",
+        "clause_text": "Always emphasize engineering safety standards.",
+        "severity": "high",
+        "source_doc": "Manual Entry"
+    }, headers={"Authorization": f"Bearer {token}"})
+    assert new_rule_res.status_code == 200
+    created_rule = new_rule_res.json()
+    assert created_rule["id"]
+
+    # 4. Create manual custom term
+    new_term_res = client.post("/api/terms", json={
+        "workspace_id": ws.id,
+        "preferred": "Autonomous Drive",
+        "banned_variants": ["self-driving robot", "autopilot gimmick"],
+        "note": "Legal compliance directive"
+    }, headers={"Authorization": f"Bearer {token}"})
+    assert new_term_res.status_code == 200
+    created_term = new_term_res.json()
+
+    # 5. Create manual custom fact
+    new_fact_res = client.post("/api/facts", json={
+        "workspace_id": ws.id,
+        "statement": "Acme Motors offers a 10-year battery warranty.",
+        "source": "Corporate Warranty Document"
+    }, headers={"Authorization": f"Bearer {token}"})
+    assert new_fact_res.status_code == 200
+    created_fact = new_fact_res.json()
+
+    # 6. Delete rule
+    del_res = client.delete(f"/api/rules/{created_rule['id']}", headers={"Authorization": f"Bearer {token}"})
+    assert del_res.status_code == 200
+
+    # 7. Verify Demo workspace remains unaffected (Demo rules still >= 5)
+    demo_rules_res = client.get("/api/rules")
+    assert demo_rules_res.status_code == 200
+    assert len(demo_rules_res.json()) >= 5
+
+    db.close()
+
 if __name__ == "__main__":
     print("Running Sentinel automated verification suite...")
     test_health()
@@ -253,6 +349,8 @@ if __name__ == "__main__":
     print("[PASS] Customer Authentication & Subscription Upgrades Verified")
     test_google_auth()
     print("[PASS] Google Sign-In & Workspace Auto-Provisioning Verified")
+    test_customer_guidelines_upload()
+    print("[PASS] Customer Company Guidelines Upload & Management Verified")
     test_admin_crm_database()
     print("[PASS] Admin Customer & Leads Database Verified")
     test_tamper_evident_audit_verification()

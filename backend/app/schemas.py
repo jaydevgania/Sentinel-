@@ -61,6 +61,7 @@ class RuleResponse(RuleBase):
         from_attributes = True
 
 class TermBase(BaseModel):
+    workspace_id: Optional[str] = None
     preferred: str
     banned_variants: List[str]
     note: Optional[str] = None
