@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ShieldCheck, Mail, Lock, User, Building2, ArrowRight, AlertCircle, Sparkles, Check } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShieldCheck, Mail, Lock, User, Building, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GoogleSignInButton from '../components/GoogleSignInButton';
+import ScrollReveal from '../components/ScrollReveal';
 
 export default function RegisterPage() {
-  const [searchParams] = useSearchParams();
-  const initialPlan = searchParams.get('plan') || 'pro';
-
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [brandName, setBrandName] = useState('');
-  const [plan, setPlan] = useState(initialPlan);
+  const [plan, setPlan] = useState('pro');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -43,96 +41,91 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-amber-500/30 selection:text-amber-200">
-      {/* Background ambient glow */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent blur-3xl rounded-full" />
-      </div>
-
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <Link to="/" className="flex items-center justify-center space-x-2.5 mb-6 group">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-900/30 group-hover:scale-105 transition">
+    <div className="min-h-screen text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-amber-500/30 selection:text-amber-200">
+      <ScrollReveal animation="fade-up" className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
+        <Link to="/" className="inline-flex items-center justify-center space-x-2.5 mb-6 group">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:scale-105 transition">
             <ShieldCheck className="w-6 h-6 text-gray-950 font-bold" />
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-white group-hover:text-amber-400 transition">
+          <span className="font-black text-2xl tracking-wider text-white group-hover:text-amber-400 transition">
             SENTINEL
           </span>
         </Link>
-        <h2 className="text-center text-2xl font-bold tracking-tight text-white">
+        <h2 className="text-center text-2xl font-black tracking-tight text-white">
           Create your brand workspace
         </h2>
-        <p className="mt-2 text-center text-xs text-gray-400">
+        <p className="mt-2 text-center text-xs text-slate-400">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-amber-400 hover:text-amber-300">
+          <Link to="/login" className="font-bold text-amber-400 hover:text-amber-300">
             Sign in
           </Link>
         </p>
-      </div>
+      </ScrollReveal>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
-        <div className="bg-gray-900 border border-gray-800 py-8 px-6 sm:px-8 rounded-3xl shadow-2xl space-y-6">
+      <ScrollReveal animation="scale-up" delay={120} className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
+        <div className="glass-panel p-7 sm:p-9 rounded-3xl border border-white/10 shadow-2xl shadow-black/60 space-y-6">
           {error && (
-            <div className="p-3.5 bg-red-950/40 border border-red-500/40 rounded-xl text-xs text-red-300 flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-3.5 bg-rose-950/50 border border-rose-500/40 rounded-2xl text-xs text-rose-300 flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Your Full Name
               </label>
               <div className="relative">
-                <User className="w-4 h-4 absolute left-3.5 top-3 text-gray-500" />
+                <User className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Alex Morgan"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400 transition"
+                  className="glass-input w-full rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Work Email Address
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 absolute left-3.5 top-3 text-gray-500" />
+                <Mail className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400 transition"
+                  className="glass-input w-full rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 absolute left-3.5 top-3 text-gray-500" />
+                <Lock className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400 transition"
+                  className="glass-input w-full rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Company Name
                 </label>
                 <input
@@ -141,11 +134,11 @@ export default function RegisterPage() {
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Acme Global"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400 transition"
+                  className="glass-input w-full rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Brand Name
                 </label>
                 <input
@@ -153,14 +146,14 @@ export default function RegisterPage() {
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
                   placeholder="Acme Coffee"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400 transition"
+                  className="glass-input w-full rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                 />
               </div>
             </div>
 
             {/* Plan selection */}
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Selected Plan
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -173,14 +166,14 @@ export default function RegisterPage() {
                     key={p.id}
                     type="button"
                     onClick={() => setPlan(p.id)}
-                    className={`p-2.5 rounded-xl border text-left transition ${
+                    className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
                       plan === p.id
-                        ? 'bg-amber-500/20 border-amber-500 text-white shadow-sm'
-                        : 'bg-gray-950 border-gray-800 text-gray-400 hover:border-gray-700'
+                        ? 'bg-amber-500/20 border-amber-500/70 text-white shadow-md shadow-amber-500/10'
+                        : 'glass-panel-subtle text-slate-400 hover:border-white/20'
                     }`}
                   >
                     <div className="font-bold text-xs capitalize text-white">{p.label}</div>
-                    <div className="text-[10px] text-amber-400 font-medium">{p.price}</div>
+                    <div className="text-[10px] text-amber-400 font-semibold">{p.price}</div>
                   </button>
                 ))}
               </div>
@@ -190,9 +183,9 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500 via-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-gray-950 font-extrabold rounded-xl text-xs shadow-lg shadow-amber-900/30 transition transform active:scale-98 disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-2"
+                className="glass-button-primary w-full py-3 px-4 font-bold rounded-xl text-xs text-gray-950 shadow-xl shadow-amber-500/25 transition disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-2"
               >
-                <span>{loading ? 'Creating Brand Workspace...' : 'Register & Launch Workspace'}</span>
+                <span>{loading ? 'Provisioning Workspace...' : 'Register & Launch Workspace'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -201,10 +194,10 @@ export default function RegisterPage() {
           {/* Google Quick Sign Up */}
           <div className="relative my-2">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-800" />
+              <div className="w-full border-t border-white/10" />
             </div>
-            <div className="relative flex justify-center text-[11px]">
-              <span className="px-2 bg-gray-900 text-gray-500 font-medium">Or quick register with</span>
+            <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-wider">
+              <span className="px-2.5 bg-[#0e1422] text-slate-400 rounded-full">Or quick register with</span>
             </div>
           </div>
 
@@ -213,13 +206,13 @@ export default function RegisterPage() {
             onSuccess={() => navigate('/app', { replace: true })}
           />
 
-          <div className="pt-3 border-t border-gray-800 text-center">
-            <p className="text-[11px] text-gray-400">
-              By registering, an isolated database workspace is provisioned for your brand with automatic SHA-256 audit logging.
+          <div className="pt-3 border-t border-white/10 text-center">
+            <p className="text-[10px] text-slate-400 leading-relaxed">
+              By registering, an isolated database workspace is provisioned for your brand with automatic cryptographic audit logging.
             </p>
           </div>
         </div>
-      </div>
+      </ScrollReveal>
     </div>
   );
 }

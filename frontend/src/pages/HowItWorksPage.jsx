@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ScrollReveal from '../components/ScrollReveal';
 import {
   ChevronRight,
   Database,
@@ -34,6 +35,7 @@ import {
   ShieldAlert,
   ClipboardCheck,
   ScrollText,
+  Sparkles
 } from 'lucide-react';
 
 const steps = [
@@ -181,69 +183,69 @@ function StepCard({ step, index }) {
   const isEven = index % 2 === 0;
 
   return (
-    <div className="relative">
-      {/* Connector line */}
-      {index < steps.length - 1 && (
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-full h-12 flex items-center justify-center z-10">
-          <div className="w-px h-full bg-gradient-to-b from-amber-500/60 to-amber-500/10" />
-          <ArrowDown className="absolute bottom-0 w-4 h-4 text-amber-500/60" />
-        </div>
-      )}
-
-      <div
-        className={`group relative rounded-2xl border border-gray-800 bg-gray-900/70 backdrop-blur-sm p-8 lg:p-10 transition-all duration-300 hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 ${
-          isEven ? '' : ''
-        }`}
-      >
-        {/* Step number badge */}
-        <div className="absolute -top-4 left-8 lg:left-10">
-          <div className="flex items-center gap-2 bg-amber-500 text-gray-950 font-bold text-sm px-4 py-1.5 rounded-full shadow-lg shadow-amber-500/25">
-            Step {step.number}
+    <ScrollReveal animation={isEven ? 'slide-left' : 'slide-right'} delay={index * 100}>
+      <div className="relative">
+        {/* Connector line */}
+        {index < steps.length - 1 && (
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-full h-12 flex items-center justify-center z-10">
+            <div className="w-px h-full bg-gradient-to-b from-amber-500/60 to-amber-500/10" />
+            <ArrowDown className="absolute bottom-0 w-4 h-4 text-amber-500/60" />
           </div>
-        </div>
+        )}
 
-        <div className="mt-4 flex flex-col lg:flex-row gap-8">
-          {/* Left: Icon and Title */}
-          <div className="lg:w-1/3 flex flex-col items-start">
-            <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 transition-colors">
-              <Icon className="w-7 h-7 text-amber-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">{step.title}</h3>
-
-            {/* Highlight chips */}
-            <div className="flex flex-wrap gap-2">
-              {step.highlights.map((h, i) => {
-                const HIcon = h.icon;
-                return (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 bg-gray-800/80 border border-gray-700/50 rounded-full px-3 py-1.5"
-                  >
-                    <HIcon className="w-3.5 h-3.5 text-amber-500/70" />
-                    {h.label}
-                  </span>
-                );
-              })}
+        <div
+          className="group relative rounded-3xl glass-card p-8 lg:p-10 transition-all duration-300"
+        >
+          {/* Step number badge */}
+          <div className="absolute -top-4 left-8 lg:left-10">
+            <div className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 font-black text-xs px-4 py-1.5 rounded-full shadow-lg shadow-amber-500/30 uppercase tracking-wider">
+              Step {step.number}
             </div>
           </div>
 
-          {/* Right: Description */}
-          <div className="lg:w-2/3 space-y-4">
-            <p className="text-gray-300 leading-relaxed">{step.description}</p>
-
-            <div className="rounded-xl bg-gray-800/50 border border-gray-700/40 p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <Eye className="w-4 h-4 text-amber-400" />
-                <span className="text-sm font-semibold text-amber-400 uppercase tracking-wider">
-                  What You See
-                </span>
+          <div className="mt-4 flex flex-col lg:flex-row gap-8">
+            {/* Left: Icon and Title */}
+            <div className="lg:w-1/3 flex flex-col items-start">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mb-4 group-hover:scale-105 group-hover:border-amber-400 transition-all">
+                <Icon className="w-7 h-7 text-amber-400" />
               </div>
-              <p className="text-gray-400 text-sm leading-relaxed">{step.uiDescription}</p>
+              <h3 className="text-2xl font-black text-white mb-4 group-hover:text-amber-300 transition-colors">{step.title}</h3>
+
+              {/* Highlight chips */}
+              <div className="flex flex-wrap gap-2">
+                {step.highlights.map((h, i) => {
+                  const HIcon = h.icon;
+                  return (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 glass-pill rounded-full px-3 py-1.5"
+                    >
+                      <HIcon className="w-3.5 h-3.5 text-amber-400" />
+                      {h.label}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right: Description */}
+            <div className="lg:w-2/3 space-y-4">
+              <p className="text-slate-300 leading-relaxed text-sm">{step.description}</p>
+
+              <div className="rounded-2xl glass-panel-subtle p-5 border border-white/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Eye className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                    Interactive Interface Experience
+                  </span>
+                </div>
+                <p className="text-slate-400 text-xs leading-relaxed">{step.uiDescription}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ScrollReveal>
   );
 }
 
@@ -296,39 +298,39 @@ export default function HowItWorksPage() {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen text-slate-100">
       {/* Breadcrumb Nav */}
-      <nav className="border-b border-gray-800/60 bg-gray-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-sm">
+      <nav className="border-b border-white/10 glass-panel sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <Link
               to="/"
-              className="text-gray-400 hover:text-amber-400 transition-colors font-medium flex items-center gap-1.5"
+              className="text-slate-400 hover:text-amber-400 transition-colors font-bold flex items-center gap-1.5"
             >
-              <ShieldCheck className="w-4 h-4 text-amber-500" />
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
               <span>Sentinel</span>
             </Link>
-            <ChevronRight className="w-4 h-4 text-gray-600" />
-            <span className="text-amber-400 font-medium">How It Works</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+            <span className="text-amber-400 font-semibold">How It Works</span>
           </div>
 
           <div className="flex items-center gap-3">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2.5">
-                <div className="hidden sm:flex items-center space-x-1.5 text-xs bg-gray-900/80 px-2.5 py-1 rounded-lg border border-gray-800">
-                  <span className="text-gray-400">Hello,</span>
+                <div className="hidden sm:flex items-center space-x-1.5 text-xs glass-pill px-3 py-1 rounded-xl">
+                  <span className="text-slate-400">Hello,</span>
                   <span className="font-bold text-amber-400">{user.name || user.email.split('@')[0]}</span>
                 </div>
-                <Link to="/app" className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                <Link to="/app" className="glass-button-primary px-4 py-1.5 text-xs font-bold rounded-xl text-gray-950">
                   Launch App &rarr;
                 </Link>
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-xs text-gray-400 hover:text-white transition font-medium">
+                <Link to="/login" className="glass-button-secondary px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white">
                   Sign In
                 </Link>
-                <Link to="/register" className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                <Link to="/register" className="glass-button-primary px-4 py-1.5 text-xs font-bold rounded-xl text-gray-950">
                   Get Started
                 </Link>
               </>
@@ -338,48 +340,49 @@ export default function HowItWorksPage() {
       </nav>
 
       {/* Hero Banner */}
-      <section className="relative overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/5 rounded-full blur-3xl" />
-        </div>
+      <section className="relative overflow-hidden pt-16 pb-14 text-center">
+        <div className="max-w-5xl mx-auto px-6 relative z-10">
+          <ScrollReveal animation="fade-up">
+            <div className="inline-flex items-center gap-2 glass-pill border-amber-500/30 rounded-full px-4 py-1.5 mb-6 shadow-sm">
+              <Cpu className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-amber-300 text-xs font-bold uppercase tracking-wider">End-to-End Compliance Pipeline</span>
+            </div>
+          </ScrollReveal>
 
-        <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5 mb-6">
-            <Cpu className="w-4 h-4 text-amber-400" />
-            <span className="text-amber-300 text-sm font-medium">End-to-End Compliance Workflow</span>
-          </div>
+          <ScrollReveal animation="fade-up" delay={80}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-5 text-white">
+              How{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500">
+                Sentinel
+              </span>{' '}
+              Works
+            </h1>
+          </ScrollReveal>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            How{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">
-              Sentinel
-            </span>{' '}
-            Works
-          </h1>
+          <ScrollReveal animation="fade-up" delay={160}>
+            <p className="text-base md:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              From uploading brand guidelines to cryptographically sealed audit trails, Sentinel orchestrates
+              a fully transparent compliance pipeline that combines deterministic rule engines with
+              grounded AI analysis &mdash; keeping humans in control at every step.
+            </p>
+          </ScrollReveal>
 
-          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            From uploading brand guidelines to cryptographically sealed audit trails, Sentinel orchestrates
-            a fully transparent compliance pipeline that combines deterministic rule engines with
-            grounded AI analysis &mdash; keeping humans in control at every step.
-          </p>
-
-          <div className="mt-10 flex items-center justify-center gap-3 text-sm text-gray-500">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              6 Steps
-            </span>
-            <span className="text-gray-700">&bull;</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-400" />
-              Dual Engine Architecture
-            </span>
-            <span className="text-gray-700">&bull;</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              Full Audit Trail
-            </span>
-          </div>
+          <ScrollReveal animation="fade-up" delay={240}>
+            <div className="mt-8 flex items-center justify-center gap-4 text-xs font-semibold text-slate-400">
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full glass-panel-subtle">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                6 Interactive Steps
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full glass-panel-subtle">
+                <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                Dual Engine Architecture
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full glass-panel-subtle">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                SHA-256 Audit Trail
+              </span>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -393,15 +396,14 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Architecture Diagram Section */}
-      <section className="border-t border-gray-800/60 bg-gray-900/30">
+      <section className="border-t border-white/10 bg-black/25">
         <div className="max-w-7xl mx-auto px-6 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Under the Hood</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              A look at the internal architecture that powers every compliance review. Each component
-              is modular, auditable, and designed for resilience.
+          <ScrollReveal animation="fade-up" className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-black mb-3 text-white">Under the Hood Architecture</h2>
+            <p className="text-slate-300/80 max-w-2xl mx-auto text-sm">
+              Modular, fully grounded dual-engine design ensuring zero hallucinations and instant deterministic fallback.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Architecture flow diagram */}
           <div className="flex flex-col items-center">
@@ -412,55 +414,63 @@ export default function HowItWorksPage() {
 
           {/* Dual engine detail */}
           <div className="mt-16 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <ScanEye className="w-6 h-6 text-blue-400" />
-                <h3 className="text-lg font-bold text-blue-300">Deterministic Engine</h3>
+            <ScrollReveal animation="slide-left">
+              <div className="rounded-3xl glass-card p-7 border-cyan-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
+                    <ScanEye className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-cyan-300">Deterministic Engine</h3>
+                </div>
+                <ul className="space-y-2.5 text-slate-300 text-xs">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>Word-boundary terminology scanning with 0 false negatives</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>WCAG 2.1 AA mathematical contrast ratio calculation</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>Flesch reading ease and structural metrics</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>Exclamation mark &amp; channel punctuation constraints</span>
+                  </li>
+                </ul>
               </div>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
-                  Word-boundary terminology scanning
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
-                  WCAG 2.1 AA contrast ratio calculation
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
-                  Flesch readability scoring
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
-                  Exclamation mark &amp; punctuation rules
-                </li>
-              </ul>
-            </div>
+            </ScrollReveal>
 
-            <div className="rounded-xl border border-purple-500/30 bg-purple-500/5 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <BrainCircuit className="w-6 h-6 text-purple-400" />
-                <h3 className="text-lg font-bold text-purple-300">Grounded AI Engine</h3>
+            <ScrollReveal animation="slide-right">
+              <div className="rounded-3xl glass-card p-7 border-purple-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center">
+                    <BrainCircuit className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-purple-300">Grounded AI Engine</h3>
+                </div>
+                <ul className="space-y-2.5 text-slate-300 text-xs">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Claim extraction &amp; verified factual citations</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Brand tone alignment and voice classification</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Competitor mention &amp; negative association check</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Intent Guard: keeps original creative meaning intact</span>
+                  </li>
+                </ul>
               </div>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
-                  Claim extraction &amp; fact verification
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
-                  Tone classification
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
-                  Competitor mention detection
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
-                  Intent-guarded suggestions
-                </li>
-              </ul>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import ScrollReveal from "../components/ScrollReveal";
 import {
   Mail,
   Briefcase,
@@ -14,6 +15,7 @@ import {
   MessageSquare,
   ChevronDown,
   HelpCircle,
+  ShieldCheck
 } from "lucide-react";
 
 const TwitterIcon = ({ className = "h-4 w-4" }) => (
@@ -117,35 +119,36 @@ export default function ContactPage() {
   /* ------------------------------------------------------------------ */
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
+    <div className="min-h-screen text-slate-100">
       {/* ── Breadcrumb & Auth ─────────────────────────────────────── */}
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <nav className="flex items-center justify-between text-sm text-gray-400">
+        <nav className="flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-1.5">
-            <Link to="/" className="transition hover:text-amber-400 font-medium">
-              Sentinel
+            <Link to="/" className="transition hover:text-amber-400 font-bold flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <span>Sentinel</span>
             </Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-gray-200">Contact</span>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+            <span className="text-slate-200 font-semibold">Contact Solutions</span>
           </div>
 
           <div className="flex items-center gap-3">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2.5">
-                <div className="hidden sm:flex items-center space-x-1.5 text-xs bg-gray-900/80 px-2.5 py-1 rounded-lg border border-gray-800">
-                  <span className="text-gray-400">Hello,</span>
+                <div className="hidden sm:flex items-center space-x-1.5 text-xs glass-pill px-3 py-1 rounded-xl">
+                  <span className="text-slate-400">Hello,</span>
                   <span className="font-bold text-amber-400">{user.name || user.email.split('@')[0]}</span>
                 </div>
-                <Link to="/app" className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                <Link to="/app" className="glass-button-primary px-4 py-1.5 text-xs font-bold rounded-xl text-gray-950">
                   Launch App &rarr;
                 </Link>
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-xs text-gray-400 hover:text-white transition font-medium">
+                <Link to="/login" className="glass-button-secondary px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white">
                   Sign In
                 </Link>
-                <Link to="/register" className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs rounded-lg transition">
+                <Link to="/register" className="glass-button-primary px-4 py-1.5 text-xs font-bold rounded-xl text-gray-950">
                   Get Started
                 </Link>
               </>
@@ -155,52 +158,50 @@ export default function ContactPage() {
       </div>
 
       {/* ── Page header ────────────────────────────────────────────── */}
-      <header className="mx-auto max-w-7xl px-4 pt-10 pb-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-          Contact&nbsp;
-          <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
-            Us
-          </span>
-        </h1>
-        <p className="mt-3 max-w-2xl text-lg text-gray-400">
-          Have a question, need a demo, or want to discuss enterprise
-          features? We&rsquo;re here to help.
-        </p>
+      <header className="mx-auto max-w-7xl px-4 pt-12 pb-4 sm:px-6 lg:px-8 text-center sm:text-left">
+        <ScrollReveal animation="fade-up">
+          <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
+            Contact&nbsp;
+            <span className="bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent">
+              Our Solutions Team
+            </span>
+          </h1>
+          <p className="mt-3 max-w-2xl text-base text-slate-300/80">
+            Have a question, need an architecture walkthrough, or want to discuss enterprise features? We&rsquo;re here to help.
+          </p>
+        </ScrollReveal>
       </header>
 
       {/* ── Two-column layout ──────────────────────────────────────── */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-5">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-5">
           {/* ── LEFT COLUMN ──────────────────────────────────────── */}
-          <div className="space-y-10 lg:col-span-2">
-            {/* Intro */}
+          <ScrollReveal animation="slide-left" className="space-y-8 lg:col-span-2">
             <div>
-              <h2 className="text-2xl font-semibold text-white">
+              <h2 className="text-xl font-bold text-white">
                 Get in Touch
               </h2>
-              <p className="mt-2 text-gray-400">
-                Whether you&rsquo;re exploring Sentinel for your brand team
-                or need enterprise features, we&rsquo;d love to hear from
-                you.
+              <p className="mt-1.5 text-xs text-slate-400">
+                Whether you&rsquo;re exploring Sentinel for your brand team or require private VPC deployment, our engineers respond fast.
               </p>
             </div>
 
             {/* Contact cards */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {contactCards.map(({ icon: Icon, label, value, href }) => (
                 <a
                   key={label}
                   href={href}
-                  className="flex items-center gap-4 rounded-xl border border-gray-800 bg-gray-900/60 p-4 transition hover:border-amber-500/40 hover:bg-gray-900"
+                  className="flex items-center gap-4 rounded-2xl glass-card p-4 transition-all"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       {label}
                     </p>
-                    <p className="text-sm font-medium text-gray-200">
+                    <p className="text-xs font-semibold text-slate-200">
                       {value}
                     </p>
                   </div>
@@ -209,65 +210,47 @@ export default function ContactPage() {
             </div>
 
             {/* Office address */}
-            <div className="flex items-start gap-4 rounded-xl border border-gray-800 bg-gray-900/60 p-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
+            <div className="flex items-start gap-4 rounded-2xl glass-card p-4">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
                 <MapPin className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Office
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Global Hub
                 </p>
-                <p className="text-sm font-medium text-gray-200">
-                  Sentinel HQ, Mumbai, India
+                <p className="text-xs font-semibold text-slate-200">
+                  Sentinel Systems HQ, Mumbai, India
                 </p>
-              </div>
-            </div>
-
-            {/* Social links */}
-            <div>
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">
-                Follow Us
-              </h3>
-              <div className="flex gap-3">
-                {socialLinks.map(({ icon: Icon, label, href }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    aria-label={label}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-800 bg-gray-900/60 text-gray-400 transition hover:border-amber-500/40 hover:text-amber-400"
-                  >
-                    <Icon className="h-4.5 w-4.5" />
-                  </a>
-                ))}
               </div>
             </div>
 
             {/* Book a Demo card */}
-            <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-amber-600/5 p-6">
-              <div className="mb-3 flex items-center gap-2 text-amber-400">
+            <div className="rounded-3xl glass-card-glow-amber p-6">
+              <div className="mb-2.5 flex items-center gap-2 text-amber-400">
                 <CalendarClock className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">Book a Demo</h3>
+                <h3 className="text-base font-bold text-white">Interactive Guided Demo</h3>
               </div>
-              <p className="mb-5 text-sm leading-relaxed text-gray-400">
-                See Sentinel in action with your own brand guidelines. Our
-                team will walk you through a personalized demo.
+              <p className="mb-4 text-xs leading-relaxed text-slate-300">
+                See Sentinel analyze your actual marketing guidelines live with real-time scoring and compliance citations.
               </p>
               <Link
                 to="/app"
-                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-sm font-semibold text-gray-950 shadow-lg shadow-amber-500/20 transition hover:brightness-110"
+                className="glass-button-primary inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold text-gray-950 shadow-lg shadow-amber-500/25 transition"
               >
-                Schedule Demo
+                <span>Launch Interactive Demo</span>
                 <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* ── RIGHT COLUMN — Contact Form ──────────────────────── */}
-          <div className="lg:col-span-3">
-            <div className="rounded-2xl border border-gray-800 bg-gray-900/60 p-6 sm:p-8">
-              <div className="mb-6 flex items-center gap-2 text-white">
-                <MessageSquare className="h-5 w-5 text-amber-400" />
-                <h2 className="text-xl font-semibold">Send Us a Message</h2>
+          <ScrollReveal animation="slide-right" className="lg:col-span-3">
+            <div className="rounded-3xl glass-panel p-6 sm:p-9 border border-white/10 shadow-2xl">
+              <div className="mb-6 flex items-center gap-2.5 text-white">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 text-amber-400" />
+                </div>
+                <h2 className="text-lg font-bold">Send Us a Direct Message</h2>
               </div>
 
               {submitted ? (
@@ -305,7 +288,7 @@ export default function ContactPage() {
                       value={form.fullName}
                       onChange={set("fullName")}
                       placeholder="Jane Doe"
-                      className="w-full rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50"
+                      className="glass-input w-full rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                     />
                   </div>
 
@@ -313,7 +296,7 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="mb-1.5 block text-sm font-medium text-gray-300"
+                      className="mb-1.5 block text-xs font-semibold text-slate-300"
                     >
                       Work Email <span className="text-amber-500">*</span>
                     </label>
@@ -324,7 +307,7 @@ export default function ContactPage() {
                       value={form.email}
                       onChange={set("email")}
                       placeholder="jane@company.com"
-                      className="w-full rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50"
+                      className="glass-input w-full rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                     />
                   </div>
 
@@ -333,7 +316,7 @@ export default function ContactPage() {
                     <div>
                       <label
                         htmlFor="company"
-                        className="mb-1.5 block text-sm font-medium text-gray-300"
+                        className="mb-1.5 block text-xs font-semibold text-slate-300"
                       >
                         Company Name
                       </label>
@@ -343,14 +326,14 @@ export default function ContactPage() {
                         value={form.company}
                         onChange={set("company")}
                         placeholder="Acme Inc."
-                        className="w-full rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50"
+                        className="glass-input w-full rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="teamSize"
-                        className="mb-1.5 block text-sm font-medium text-gray-300"
+                        className="mb-1.5 block text-xs font-semibold text-slate-300"
                       >
                         Team Size
                       </label>
@@ -359,16 +342,16 @@ export default function ContactPage() {
                           id="teamSize"
                           value={form.teamSize}
                           onChange={set("teamSize")}
-                          className="w-full appearance-none rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 pr-10 text-sm text-gray-100 outline-none transition focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50"
+                          className="glass-input w-full appearance-none rounded-xl px-4 py-2.5 pr-10 text-xs text-white outline-none"
                         >
-                          <option value="">Select&hellip;</option>
+                          <option value="" className="bg-[#0b0f19]">Select&hellip;</option>
                           {teamSizeOptions.map((o) => (
-                            <option key={o} value={o}>
+                            <option key={o} value={o} className="bg-[#0b0f19]">
                               {o}
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                       </div>
                     </div>
                   </div>
@@ -377,7 +360,7 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="subject"
-                      className="mb-1.5 block text-sm font-medium text-gray-300"
+                      className="mb-1.5 block text-xs font-semibold text-slate-300"
                     >
                       Subject
                     </label>
@@ -386,16 +369,16 @@ export default function ContactPage() {
                         id="subject"
                         value={form.subject}
                         onChange={set("subject")}
-                        className="w-full appearance-none rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 pr-10 text-sm text-gray-100 outline-none transition focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50"
+                        className="glass-input w-full appearance-none rounded-xl px-4 py-2.5 pr-10 text-xs text-white outline-none"
                       >
-                        <option value="">Select a topic&hellip;</option>
+                        <option value="" className="bg-[#0b0f19]">Select a topic&hellip;</option>
                         {subjectOptions.map((o) => (
-                          <option key={o} value={o}>
+                          <option key={o} value={o} className="bg-[#0b0f19]">
                             {o}
                           </option>
                         ))}
                       </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                     </div>
                   </div>
 
@@ -403,7 +386,7 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="message"
-                      className="mb-1.5 block text-sm font-medium text-gray-300"
+                      className="mb-1.5 block text-xs font-semibold text-slate-300"
                     >
                       Message <span className="text-amber-500">*</span>
                     </label>
@@ -413,8 +396,8 @@ export default function ContactPage() {
                       rows={5}
                       value={form.message}
                       onChange={set("message")}
-                      placeholder="Tell us how we can help&hellip;"
-                      className="w-full rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50"
+                      placeholder="Tell us about your brand compliance guidelines or enterprise requirements&hellip;"
+                      className="glass-input w-full rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
                     />
                   </div>
 
@@ -422,47 +405,48 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-sm font-semibold text-gray-950 shadow-lg shadow-amber-500/20 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                    className="glass-button-primary inline-flex w-full items-center justify-center gap-2 rounded-xl px-7 py-3 text-xs font-bold text-gray-950 shadow-xl shadow-amber-500/25 transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto cursor-pointer"
                   >
                     {loading ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Sending&hellip;
+                        <span>Transmitting Inquiry&hellip;</span>
                       </>
                     ) : (
                       <>
                         <Send className="h-4 w-4" />
-                        Send Message
+                        <span>Send Message</span>
                       </>
                     )}
                   </button>
                 </form>
               )}
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* ── FAQ mini-section ───────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center gap-2">
+        <ScrollReveal animation="fade-up" className="mb-6 flex items-center gap-2">
           <HelpCircle className="h-5 w-5 text-amber-400" />
-          <h2 className="text-xl font-semibold text-white">
-            Frequently Asked Questions
+          <h2 className="text-lg font-bold text-white">
+            Quick Answers
           </h2>
-        </div>
+        </ScrollReveal>
 
         <div className="grid gap-4 sm:grid-cols-3">
-          {faqs.map(({ q, a }) => (
-            <div
-              key={q}
-              className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 transition hover:border-amber-500/30"
-            >
-              <h3 className="text-sm font-semibold text-gray-200">{q}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                {a}
-              </p>
-            </div>
+          {faqs.map(({ q, a }, idx) => (
+            <ScrollReveal key={q} animation="fade-up" delay={idx * 80}>
+              <div
+                className="rounded-2xl glass-card p-5 h-full flex flex-col justify-between"
+              >
+                <h3 className="text-xs font-bold text-white mb-2">{q}</h3>
+                <p className="text-xs leading-relaxed text-slate-400">
+                  {a}
+                </p>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </section>

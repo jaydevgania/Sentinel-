@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import LiveBackground from './components/LiveBackground';
 import LandingPage from './pages/LandingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import ContactPage from './pages/ContactPage';
@@ -14,33 +15,41 @@ import App from './App';
 export default function AppRouter() {
   return (
     <AuthProvider>
-      <Routes>
-        {/* Public marketing pages */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/how-it-works" element={<HowItWorksPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
+      <div className="relative min-h-screen bg-[#07090e] text-slate-100 selection:bg-amber-500/30 selection:text-amber-200">
+        {/* Global Live Dynamic Thematic Background */}
+        <LiveBackground />
 
-        {/* Dedicated Auth Pages */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        {/* Routed Pages */}
+        <div className="relative z-10">
+          <Routes>
+            {/* Public marketing pages */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
 
-        {/* Protected Admin Customer & CRM Database */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminCRMPage />
-            </ProtectedRoute>
-          }
-        />
+            {/* Dedicated Auth Pages */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-        {/* Main Sentinel Application (accessible to guests for demo + custom workspace when logged in) */}
-        <Route path="/app" element={<App />} />
+            {/* Protected Admin Customer & CRM Database */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminCRMPage />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* Fallback to landing */}
-        <Route path="*" element={<LandingPage />} />
-      </Routes>
+            {/* Main Sentinel Application */}
+            <Route path="/app" element={<App />} />
+
+            {/* Fallback to landing */}
+            <Route path="*" element={<LandingPage />} />
+          </Routes>
+        </div>
+      </div>
     </AuthProvider>
   );
 }

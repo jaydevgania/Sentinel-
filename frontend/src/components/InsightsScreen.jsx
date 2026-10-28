@@ -45,7 +45,7 @@ export default function InsightsScreen() {
     <div className="space-y-6">
       {/* Overview Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+        <div className="glass-card rounded-2xl p-5 hover:border-amber-500/30 transition">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
             Total Content Reviews
           </span>
@@ -55,7 +55,7 @@ export default function InsightsScreen() {
           </div>
         </div>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+        <div className="glass-card rounded-2xl p-5 hover:border-amber-500/30 transition">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
             Total Issues Flagged
           </span>
@@ -65,7 +65,7 @@ export default function InsightsScreen() {
           </div>
         </div>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+        <div className="glass-card rounded-2xl p-5 hover:border-emerald-500/30 transition">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
             Avg Brand Compliance
           </span>
@@ -79,7 +79,7 @@ export default function InsightsScreen() {
       </div>
 
       {/* Guideline-Gap Detector (Tier 2 Named Improvement) */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-4">
+      <div className="glass-panel rounded-2xl p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Lightbulb className="w-5 h-5 text-amber-400" />
@@ -99,7 +99,7 @@ export default function InsightsScreen() {
           {insights.guideline_gaps.map((gap) => {
             const isApproved = approvedGaps[gap.rule_id];
             return (
-              <div key={gap.rule_id} className="bg-gray-950/80 border border-gray-800 rounded-xl p-4 space-y-3">
+              <div key={gap.rule_id} className="glass-card rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-bold text-gray-400">
                     Rule ID: {gap.rule_id}
@@ -137,7 +137,7 @@ export default function InsightsScreen() {
                   ) : (
                     <button
                       onClick={() => handleApproveRefinement(gap.rule_id)}
-                      className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-950 text-xs font-bold rounded-xl shadow-md transition"
+                      className="px-4 py-2 glass-button-primary text-gray-950 text-xs font-bold rounded-xl shadow-md transition"
                     >
                       Approve & Adopt Clarification
                     </button>
@@ -152,7 +152,7 @@ export default function InsightsScreen() {
       {/* Most Violated Rules & Tamper-Proof Audit Status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Most Violated Rules */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-3">
+        <div className="glass-card rounded-2xl p-5 space-y-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center space-x-2">
             <AlertOctagon className="w-4 h-4 text-red-400" />
             <span>Top Policy Violations</span>
@@ -160,7 +160,7 @@ export default function InsightsScreen() {
 
           <div className="space-y-2">
             {insights.most_violated_rules.map((r, i) => (
-              <div key={r.rule_id} className="bg-gray-950 p-3 rounded-xl border border-gray-800 flex items-center justify-between">
+              <div key={r.rule_id} className="glass-panel-subtle p-3 rounded-xl border border-white/5 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-amber-400 block">{r.category}</span>
                   <p className="text-xs text-gray-300 line-clamp-1">{r.clause}</p>
@@ -174,7 +174,7 @@ export default function InsightsScreen() {
         </div>
 
         {/* Cryptographic Proof Verification Card */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-4">
+        <div className="glass-card rounded-2xl p-5 space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center space-x-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
             <span>Cryptographic Proof & Tamper Defense</span>
@@ -182,7 +182,7 @@ export default function InsightsScreen() {
 
           {audit && (
             <div className="space-y-3 text-xs">
-              <div className="bg-gray-950 p-3.5 rounded-xl border border-gray-800 space-y-2">
+              <div className="glass-panel-subtle p-3.5 rounded-xl border border-white/5 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Chain Integrity:</span>
                   <span className="font-bold text-emerald-400">
@@ -194,7 +194,7 @@ export default function InsightsScreen() {
                   <span className="font-mono text-white font-bold">{audit.total_events}</span>
                 </div>
                 {audit.latest_hash && (
-                  <div className="pt-2 border-t border-gray-800">
+                  <div className="pt-2 border-t border-white/10">
                     <span className="text-gray-400 block text-[10px] mb-0.5">Latest Block SHA-256:</span>
                     <span className="font-mono text-[10px] text-amber-400 break-all">{audit.latest_hash}</span>
                   </div>

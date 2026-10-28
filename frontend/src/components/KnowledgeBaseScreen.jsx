@@ -193,7 +193,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
   return (
     <div className="space-y-6">
       {/* Workspace & Guidelines Context Header */}
-      <div className="bg-gradient-to-r from-gray-900 via-gray-900 to-gray-850 border border-gray-800 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+      <div className="glass-panel rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
             <BookOpen className="w-5 h-5 text-amber-400 shrink-0" />
@@ -212,7 +212,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
         {/* Action Controls & Upload Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
           {currentUser && (
-            <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs">
+            <div className="flex items-center glass-card p-1 rounded-xl text-xs">
               <button
                 onClick={() => setSelectedWorkspaceMode('custom')}
                 className={`px-3 py-1.5 rounded-lg font-semibold transition ${
@@ -246,7 +246,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           </button>
 
           {/* Quick inline file picker */}
-          <label className="flex items-center space-x-1.5 px-3 py-2 bg-gray-800 hover:bg-gray-750 text-gray-300 rounded-xl text-xs font-semibold cursor-pointer border border-gray-700 transition">
+          <label className="flex items-center space-x-1.5 px-3 py-2 glass-card hover:border-amber-500/40 text-gray-300 rounded-xl text-xs font-semibold cursor-pointer transition">
             <FileText className="w-3.5 h-3.5 text-amber-400" />
             <span>{uploading ? 'Extracting...' : 'Quick Import (PDF/DOCX)'}</span>
             <input
@@ -274,7 +274,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
       )}
 
       {/* Tabs & Sub-Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-800 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
         <div className="flex space-x-2 text-xs font-semibold overflow-x-auto pb-1 sm:pb-0">
           {[
             { id: 'rules', label: `Rules & Clauses (${rules.length})` },
@@ -287,8 +287,8 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
               onClick={() => setActiveSubTab(tab.id)}
               className={`px-3.5 py-1.5 rounded-xl transition whitespace-nowrap ${
                 activeSubTab === tab.id
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-900'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold shadow-sm'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
               {tab.label}
@@ -301,7 +301,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           {activeSubTab === 'rules' && (
             <button
               onClick={() => setAddModalType('rule')}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-750 text-white rounded-xl text-xs font-semibold border border-gray-700 transition cursor-pointer"
+              className="flex items-center space-x-1.5 px-3 py-1.5 glass-card hover:border-amber-500/50 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-amber-400" />
               <span>Add Custom Rule</span>
@@ -310,7 +310,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           {activeSubTab === 'terms' && (
             <button
               onClick={() => setAddModalType('term')}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-750 text-white rounded-xl text-xs font-semibold border border-gray-700 transition cursor-pointer"
+              className="flex items-center space-x-1.5 px-3 py-1.5 glass-card hover:border-emerald-500/50 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-amber-400" />
               <span>Add Banned / Preferred Term</span>
@@ -319,7 +319,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           {activeSubTab === 'facts' && (
             <button
               onClick={() => setAddModalType('fact')}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-750 text-white rounded-xl text-xs font-semibold border border-gray-700 transition cursor-pointer"
+              className="flex items-center space-x-1.5 px-3 py-1.5 glass-card hover:border-cyan-500/50 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-amber-400" />
               <span>Add Brand Fact</span>
@@ -330,8 +330,8 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
 
       {/* SUB-MODAL 1: ADD RULE */}
       {addModalType === 'rule' && (
-        <div className="bg-gray-900 border border-amber-500/40 rounded-2xl p-5 shadow-2xl animate-in fade-in space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-gray-800">
+        <div className="glass-panel border-amber-500/40 rounded-2xl p-5 shadow-2xl animate-in fade-in space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10">
             <h4 className="text-sm font-bold text-white flex items-center space-x-2">
               <Plus className="w-4 h-4 text-amber-400" />
               <span>Add Guideline Rule for {brandDisplayName}</span>
@@ -346,7 +346,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                 onChange={(e) => setNewRuleData({ ...newRuleData, clause_text: e.target.value })}
                 placeholder="e.g. Never use internet slang in official press releases or customer statements."
                 rows={2}
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
+                className="w-full glass-input rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
                 required
               />
             </div>
@@ -356,7 +356,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                 <select
                   value={newRuleData.category}
                   onChange={(e) => setNewRuleData({ ...newRuleData, category: e.target.value })}
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
                 >
                   <option value="messaging">Messaging / Claims</option>
                   <option value="tone">Tone of Voice</option>
@@ -370,7 +370,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                 <select
                   value={newRuleData.severity}
                   onChange={(e) => setNewRuleData({ ...newRuleData, severity: e.target.value })}
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
                 >
                   <option value="high">High (Strict Blocker)</option>
                   <option value="medium">Medium (Standard Rule)</option>
@@ -384,7 +384,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                   value={newRuleData.source_doc}
                   onChange={(e) => setNewRuleData({ ...newRuleData, source_doc: e.target.value })}
                   placeholder="e.g. Brand Handbook 2026"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
                 />
               </div>
             </div>
@@ -399,7 +399,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold rounded-xl text-xs transition disabled:opacity-50"
+                className="px-5 py-2 glass-button-primary font-bold rounded-xl text-xs transition disabled:opacity-50"
               >
                 {actionLoading ? 'Saving...' : 'Save Rule'}
               </button>
@@ -410,8 +410,8 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
 
       {/* SUB-MODAL 2: ADD TERM */}
       {addModalType === 'term' && (
-        <div className="bg-gray-900 border border-emerald-500/40 rounded-2xl p-5 shadow-2xl animate-in fade-in space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-gray-800">
+        <div className="glass-panel border-emerald-500/40 rounded-2xl p-5 shadow-2xl animate-in fade-in space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10">
             <h4 className="text-sm font-bold text-white flex items-center space-x-2">
               <Plus className="w-4 h-4 text-emerald-400" />
               <span>Add Terminology Rule for {brandDisplayName}</span>
@@ -427,7 +427,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                   value={newTermData.preferred}
                   onChange={(e) => setNewTermData({ ...newTermData, preferred: e.target.value })}
                   placeholder="e.g. team members, cold brew"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400"
                   required
                 />
               </div>
@@ -438,7 +438,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                   value={newTermData.banned_variants}
                   onChange={(e) => setNewTermData({ ...newTermData, banned_variants: e.target.value })}
                   placeholder="e.g. staff, employees, workers"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-red-400"
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-red-400"
                   required
                 />
               </div>
@@ -450,7 +450,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                 value={newTermData.note}
                 onChange={(e) => setNewTermData({ ...newTermData, note: e.target.value })}
                 placeholder="e.g. We celebrate our community culture and avoid impersonal corporate labels."
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
+                className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
               />
             </div>
             <div className="flex justify-end space-x-2 pt-2">
@@ -475,23 +475,23 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
 
       {/* SUB-MODAL 3: ADD FACT */}
       {addModalType === 'fact' && (
-        <div className="bg-gray-900 border border-blue-500/40 rounded-2xl p-5 shadow-2xl animate-in fade-in space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-gray-800">
+        <div className="glass-panel border-cyan-500/40 rounded-2xl p-5 shadow-2xl animate-in fade-in space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10">
             <h4 className="text-sm font-bold text-white flex items-center space-x-2">
-              <Plus className="w-4 h-4 text-blue-400" />
+              <Plus className="w-4 h-4 text-cyan-400" />
               <span>Add Verified Company Fact for {brandDisplayName}</span>
             </h4>
             <button onClick={() => setAddModalType(null)} className="text-gray-400 hover:text-white">✕</button>
           </div>
           <form onSubmit={handleCreateFact} className="space-y-3">
             <div>
-              <label className="block text-[11px] font-bold text-blue-400 uppercase mb-1">Verified Fact Statement</label>
+              <label className="block text-[11px] font-bold text-cyan-400 uppercase mb-1">Verified Fact Statement</label>
               <textarea
                 value={newFactData.statement}
                 onChange={(e) => setNewFactData({ ...newFactData, statement: e.target.value })}
                 placeholder="e.g. Founded in 2021 with 40 operational retail stores nationwide."
                 rows={2}
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-400"
+                className="w-full glass-input rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
                 required
               />
             </div>
@@ -502,7 +502,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                 value={newFactData.source}
                 onChange={(e) => setNewFactData({ ...newFactData, source: e.target.value })}
                 placeholder="e.g. Annual Audit Report 2026, SEC Filing, Corporate Press Release"
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-400"
+                className="w-full glass-input rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
               />
             </div>
             <div className="flex justify-end space-x-2 pt-2">
@@ -516,7 +516,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="px-5 py-2 bg-blue-500 hover:bg-blue-400 text-gray-950 font-bold rounded-xl text-xs transition disabled:opacity-50"
+                className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold rounded-xl text-xs transition disabled:opacity-50"
               >
                 {actionLoading ? 'Saving...' : 'Save Fact'}
               </button>
@@ -536,7 +536,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           {/* TAB 1: RULES */}
           {activeSubTab === 'rules' && (
             rules.length === 0 ? (
-              <div className="p-10 text-center rounded-2xl bg-gray-900 border border-gray-800 space-y-4">
+              <div className="p-10 text-center rounded-2xl glass-card space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
                   <Upload className="w-6 h-6" />
                 </div>
@@ -549,13 +549,13 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                 <div className="flex justify-center space-x-3 pt-2">
                   <button
                     onClick={() => onOpenUploadModal ? onOpenUploadModal() : null}
-                    className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-gray-950 font-extrabold rounded-xl text-xs shadow-md shadow-amber-900/20"
+                    className="px-5 py-2.5 glass-button-primary font-extrabold rounded-xl text-xs"
                   >
                     Upload Guidelines File
                   </button>
                   <button
                     onClick={() => setAddModalType('rule')}
-                    className="px-4 py-2.5 bg-gray-800 text-white font-semibold rounded-xl text-xs border border-gray-700"
+                    className="px-4 py-2.5 glass-button-secondary font-semibold rounded-xl text-xs"
                   >
                     Add Rule Manually
                   </button>
@@ -564,7 +564,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {rules.map(r => (
-                  <div key={r.id} className="bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-2xl p-4 space-y-2.5 transition group">
+                  <div key={r.id} className="glass-card rounded-2xl p-4 space-y-2.5 transition group hover:border-amber-500/30">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30">
@@ -591,7 +591,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                       {r.clause_text}
                     </p>
 
-                    <div className="text-[10px] text-gray-400 pt-2 border-t border-gray-800/80 flex items-center justify-between">
+                    <div className="text-[10px] text-gray-400 pt-2 border-t border-white/10 flex items-center justify-between">
                       <span className="truncate max-w-[200px]">Source: {r.source_doc || 'Brand Core'}</span>
                       <span className="font-mono text-gray-400">ID: {r.id.slice(0, 12)}</span>
                     </div>
@@ -604,7 +604,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           {/* TAB 2: TERMS */}
           {activeSubTab === 'terms' && (
             terms.length === 0 ? (
-              <div className="p-10 text-center rounded-2xl bg-gray-900 border border-gray-800 space-y-3">
+              <div className="p-10 text-center rounded-2xl glass-card space-y-3">
                 <p className="text-xs text-gray-400">No custom terminology defined for {brandDisplayName}.</p>
                 <button
                   onClick={() => setAddModalType('term')}
@@ -616,7 +616,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {terms.map(t => (
-                  <div key={t.id} className="bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-2xl p-4 space-y-2.5 transition group">
+                  <div key={t.id} className="glass-card rounded-2xl p-4 space-y-2.5 transition group hover:border-emerald-500/30">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/30">
                         Preferred: "{t.preferred}"
@@ -638,12 +638,12 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                     </div>
 
                     {t.note && (
-                      <p className="text-[11px] text-gray-400 italic bg-gray-950 p-2.5 rounded-xl border border-gray-800">
+                      <p className="text-[11px] text-gray-400 italic glass-panel-subtle p-2.5 rounded-xl border border-white/5">
                         Note: {t.note}
                       </p>
                     )}
 
-                    <div className="text-[10px] text-gray-400 pt-1 border-t border-gray-800 flex justify-end">
+                    <div className="text-[10px] text-gray-400 pt-1 border-t border-white/10 flex justify-end">
                       <span className="font-mono">ID: {t.id.slice(0, 12)}</span>
                     </div>
                   </div>
@@ -655,7 +655,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           {/* TAB 3: FACTS */}
           {activeSubTab === 'facts' && (
             facts.length === 0 ? (
-              <div className="p-10 text-center rounded-2xl bg-gray-900 border border-gray-800 space-y-3">
+              <div className="p-10 text-center rounded-2xl glass-card space-y-3">
                 <p className="text-xs text-gray-400">No verified facts recorded for {brandDisplayName}.</p>
                 <button
                   onClick={() => setAddModalType('fact')}
@@ -667,7 +667,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {facts.map(f => (
-                  <div key={f.id} className="bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-2xl p-4 space-y-2.5 transition group">
+                  <div key={f.id} className="glass-card rounded-2xl p-4 space-y-2.5 transition group hover:border-cyan-500/30">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30">
                         Verified Brand Fact
@@ -685,7 +685,7 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
                       "{f.statement}"
                     </p>
 
-                    <div className="text-[10px] text-gray-400 pt-2 border-t border-gray-800 flex items-center justify-between">
+                    <div className="text-[10px] text-gray-400 pt-2 border-t border-white/10 flex items-center justify-between">
                       <span>Source: {f.source || 'Corporate Record'}</span>
                       <span className="font-mono">ID: {f.id.slice(0, 12)}</span>
                     </div>
@@ -699,14 +699,14 @@ export default function KnowledgeBaseScreen({ currentUser, onOpenUploadModal }) 
           {activeSubTab === 'assets' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {assets.map(a => (
-                <div key={a.id} className="bg-gray-900 border border-gray-800 rounded-2xl p-4 space-y-2.5">
+                <div key={a.id} className="glass-card rounded-2xl p-4 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30">
                       {a.type} Asset
                     </span>
                     <span className="text-[10px] font-mono text-gray-400">ID: {a.id.slice(0, 12)}</span>
                   </div>
-                  <div className="text-xs font-mono text-amber-300 bg-gray-950 p-2.5 rounded-xl border border-gray-800 truncate">
+                  <div className="text-xs font-mono text-amber-300 glass-panel-subtle p-2.5 rounded-xl border border-white/5 truncate">
                     {a.value}
                   </div>
                   {a.usage_notes && (

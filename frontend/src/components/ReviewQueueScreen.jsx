@@ -86,24 +86,24 @@ export default function ReviewQueueScreen({ activeRole, onSelectReview }) {
   return (
     <div className="space-y-6">
       {/* Queue Header & Audit Chain Status */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="glass-panel border border-white/10 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl">
         <div>
           <div className="flex items-center space-x-2">
             <Clock className="w-5 h-5 text-amber-400" />
-            <h2 className="text-lg font-bold text-white">Manager Review & Decision Queue</h2>
+            <h2 className="text-lg font-bold text-white">Manager Review &amp; Decision Queue</h2>
           </div>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Human-in-the-loop review hub. Manager/Reviewer authorization required to approve content into production.
           </p>
         </div>
 
         {/* Cryptographic Tamper-Evident Verification Badge */}
         {auditStatus && (
-          <div className="flex items-center space-x-2 bg-emerald-950/30 border border-emerald-500/40 px-3.5 py-2 rounded-xl text-xs">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="flex items-center space-x-2.5 bg-emerald-500/10 border border-emerald-500/30 px-4 py-2.5 rounded-2xl text-xs">
+            <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
               <span className="font-bold text-emerald-300 block">SHA-256 Tamper-Evident Chain: VALID</span>
-              <span className="text-[10px] text-emerald-500/80 font-mono">
+              <span className="text-[10px] text-emerald-400/80 font-mono">
                 {auditStatus.total_events} events verified &bull; Hash link unbroken
               </span>
             </div>

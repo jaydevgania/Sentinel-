@@ -154,9 +154,9 @@ export default function AdminCRMPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 font-sans selection:bg-amber-500/30 selection:text-amber-200">
+    <div className="min-h-screen text-slate-100 font-sans selection:bg-amber-500/30 selection:text-amber-200">
       {/* Top Header */}
-      <header className="border-b border-gray-800 bg-gray-900/90 backdrop-blur sticky top-0 z-40">
+      <header className="glass-panel sticky top-0 z-40 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Link to="/" className="flex items-center space-x-2">
@@ -177,14 +177,14 @@ export default function AdminCRMPage() {
             </span>
             <button
               onClick={loadAll}
-              className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg border border-gray-800 transition"
+              className="p-2 text-gray-400 hover:text-white glass-card rounded-lg transition"
               title="Refresh database"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-amber-400' : ''}`} />
             </button>
             <Link
               to="/app"
-              className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold rounded-xl text-xs transition"
+              className="px-3.5 py-1.5 glass-button-primary font-bold rounded-xl text-xs transition"
             >
               Launch Studio &rarr;
             </Link>
@@ -196,7 +196,7 @@ export default function AdminCRMPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+          <div className="glass-card rounded-2xl p-5 hover:border-emerald-500/30 transition">
             <div className="flex items-center justify-between text-gray-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Approved Customers</span>
               <UserCheck className="w-4 h-4 text-emerald-400" />
@@ -207,7 +207,7 @@ export default function AdminCRMPage() {
             <span className="text-[11px] text-emerald-400">Granted developer access</span>
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+          <div className="glass-card rounded-2xl p-5 hover:border-amber-500/30 transition">
             <div className="flex items-center justify-between text-gray-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Pending Access Requests</span>
               <Clock className="w-4 h-4 text-amber-400" />
@@ -218,7 +218,7 @@ export default function AdminCRMPage() {
             <span className="text-[11px] text-amber-400">Awaiting developer approval</span>
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+          <div className="glass-card rounded-2xl p-5 hover:border-cyan-500/30 transition">
             <div className="flex items-center justify-between text-gray-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Inbound Leads</span>
               <Mail className="w-4 h-4 text-cyan-400" />
@@ -227,7 +227,7 @@ export default function AdminCRMPage() {
             <span className="text-[11px] text-cyan-400">Contact form submissions</span>
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+          <div className="glass-card rounded-2xl p-5 hover:border-purple-500/30 transition">
             <div className="flex items-center justify-between text-gray-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Access Security</span>
               <Lock className="w-4 h-4 text-purple-400" />
@@ -238,7 +238,7 @@ export default function AdminCRMPage() {
         </div>
 
         {/* Developer Access Granting Form Banner */}
-        <div className="bg-gradient-to-r from-gray-900 via-gray-900 to-gray-850 border border-amber-500/30 rounded-2xl p-5 shadow-lg">
+        <div className="glass-panel border-amber-500/30 rounded-2xl p-5 shadow-lg">
           <div className="flex items-center space-x-2 mb-3">
             <KeyRound className="w-4 h-4 text-amber-400" />
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -256,19 +256,19 @@ export default function AdminCRMPage() {
               placeholder="customer.email@company.com"
               value={newGrantEmail}
               onChange={(e) => setNewGrantEmail(e.target.value)}
-              className="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400"
+              className="flex-1 glass-input rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
             />
             <input
               type="text"
               placeholder="Notes (e.g. Enterprise pilot customer)"
               value={newGrantNotes}
               onChange={(e) => setNewGrantNotes(e.target.value)}
-              className="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-amber-400"
+              className="flex-1 glass-input rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"
             />
             <button
               type="submit"
               disabled={grantLoading}
-              className="px-5 py-2 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-gray-950 font-bold rounded-xl text-xs shadow-md transition disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-1.5 shrink-0"
+              className="px-5 py-2 glass-button-primary font-bold rounded-xl text-xs transition disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-1.5 shrink-0"
             >
               <PlusCircle className="w-4 h-4" />
               <span>{grantLoading ? 'Granting...' : 'Grant Customer Access'}</span>
@@ -284,14 +284,14 @@ export default function AdminCRMPage() {
         </div>
 
         {/* Tab Selector & Controls */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="glass-panel rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setActiveTab('customers')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
                 activeTab === 'customers'
                   ? 'bg-amber-500 text-gray-950 shadow-md shadow-amber-900/30'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
               <Users className="w-4 h-4" />
@@ -303,7 +303,7 @@ export default function AdminCRMPage() {
               className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
                 activeTab === 'leads'
                   ? 'bg-amber-500 text-gray-950 shadow-md shadow-amber-900/30'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
               <Mail className="w-4 h-4" />
@@ -315,7 +315,7 @@ export default function AdminCRMPage() {
               className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
                 activeTab === 'whitelist'
                   ? 'bg-amber-500 text-gray-950 shadow-md shadow-amber-900/30'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
               <KeyRound className="w-4 h-4" />
@@ -332,7 +332,7 @@ export default function AdminCRMPage() {
                 placeholder="Search name, email, company..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-gray-950 border border-gray-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 w-60"
+                className="glass-input rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 w-60"
               />
             </div>
 
@@ -340,7 +340,7 @@ export default function AdminCRMPage() {
               <select
                 value={tierFilter}
                 onChange={(e) => setTierFilter(e.target.value)}
-                className="bg-gray-950 border border-gray-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400"
+                className="glass-input rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400"
               >
                 <option value="">All Tiers</option>
                 <option value="starter">Starter</option>
@@ -352,7 +352,7 @@ export default function AdminCRMPage() {
             {activeTab === 'customers' && (
               <button
                 onClick={exportCustomersCSV}
-                className="flex items-center space-x-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl text-xs font-semibold border border-gray-700 transition cursor-pointer"
+                className="flex items-center space-x-1.5 px-3 py-1.5 glass-card hover:border-amber-500/50 text-gray-200 rounded-xl text-xs font-semibold transition cursor-pointer"
                 title="Export customer list to CSV"
               >
                 <Download className="w-3.5 h-3.5 text-amber-400" />
@@ -364,10 +364,10 @@ export default function AdminCRMPage() {
 
         {/* TAB 1: CUSTOMERS DATABASE */}
         {activeTab === 'customers' && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="glass-panel rounded-2xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-gray-950/80 border-b border-gray-800 text-[11px] uppercase font-bold text-gray-400">
+                <thead className="glass-panel-subtle border-b border-white/10 text-[11px] uppercase font-bold text-gray-400">
                   <tr>
                     <th className="py-3 px-4">Customer</th>
                     <th className="py-3 px-4">Company & Brand</th>
@@ -378,7 +378,7 @@ export default function AdminCRMPage() {
                     <th className="py-3 px-4 text-right">Developer Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800/60 text-gray-300">
+                <tbody className="divide-y divide-white/5 text-gray-300">
                   {filteredCustomers.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="py-12 text-center text-gray-500">
@@ -387,7 +387,7 @@ export default function AdminCRMPage() {
                     </tr>
                   ) : (
                     filteredCustomers.map((cust) => (
-                      <tr key={cust.id} className="hover:bg-gray-850/60 transition">
+                      <tr key={cust.id} className="hover:bg-white/5 transition">
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-white flex items-center space-x-1.5">
                             <span>{cust.name}</span>
@@ -409,7 +409,7 @@ export default function AdminCRMPage() {
                               ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
                               : cust.subscription_tier === 'enterprise'
                               ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                              : 'bg-gray-800 text-gray-300 border-gray-700'
+                              : 'bg-white/10 text-gray-300 border-white/20'
                           }`}>
                             {cust.subscription_tier}
                           </span>
@@ -446,7 +446,7 @@ export default function AdminCRMPage() {
                             <button
                               type="button"
                               onClick={() => handleQuickGrant(cust.email, 'Approved from customer list')}
-                              className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-gray-950 rounded-lg text-[11px] font-bold transition shadow cursor-pointer"
+                              className="px-2.5 py-1 glass-button-primary rounded-lg text-[11px] font-bold transition shadow cursor-pointer"
                             >
                               Grant Access
                             </button>
@@ -463,10 +463,10 @@ export default function AdminCRMPage() {
 
         {/* TAB 2: INBOUND CONTACT LEADS */}
         {activeTab === 'leads' && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="glass-panel rounded-2xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-gray-950/80 border-b border-gray-800 text-[11px] uppercase font-bold text-gray-400">
+                <thead className="glass-panel-subtle border-b border-white/10 text-[11px] uppercase font-bold text-gray-400">
                   <tr>
                     <th className="py-3 px-4">Contact</th>
                     <th className="py-3 px-4">Company & Team</th>
@@ -476,7 +476,7 @@ export default function AdminCRMPage() {
                     <th className="py-3 px-4 text-right">Developer Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800/60 text-gray-300">
+                <tbody className="divide-y divide-white/5 text-gray-300">
                   {filteredLeads.length === 0 ? (
                     <tr>
                       <td colSpan="6" className="py-12 text-center text-gray-500">
@@ -485,7 +485,7 @@ export default function AdminCRMPage() {
                     </tr>
                   ) : (
                     filteredLeads.map((lead) => (
-                      <tr key={lead.id} className="hover:bg-gray-850/60 transition">
+                      <tr key={lead.id} className="hover:bg-white/5 transition">
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-white">{lead.name}</div>
                           <div className="text-[11px] text-amber-400 font-mono">{lead.email}</div>
@@ -507,7 +507,7 @@ export default function AdminCRMPage() {
                             value={lead.status}
                             onChange={(e) => handleStatusChange(lead.id, e.target.value)}
                             disabled={updatingLeadId === lead.id}
-                            className={`bg-gray-950 border text-[11px] font-bold rounded-lg px-2 py-1 focus:outline-none ${
+                            className={`glass-input text-[11px] font-bold rounded-lg px-2 py-1 focus:outline-none ${
                               lead.status === 'converted' || lead.status === 'approved' ? 'text-emerald-400 border-emerald-500/40' :
                               lead.status === 'qualified' ? 'text-purple-400 border-purple-500/40' :
                               lead.status === 'contacted' ? 'text-blue-400 border-blue-500/40' :
@@ -544,7 +544,7 @@ export default function AdminCRMPage() {
         {activeTab === 'whitelist' && (
           <div className="space-y-4">
             {/* Master Developers Card */}
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+            <div className="glass-panel rounded-2xl p-5">
               <div className="flex items-center space-x-2 mb-3">
                 <Shield className="w-4 h-4 text-amber-400" />
                 <h4 className="text-xs font-bold uppercase tracking-wider text-white">
@@ -555,7 +555,7 @@ export default function AdminCRMPage() {
                 {(whitelistData.developer_emails || []).map((devEmail) => (
                   <span
                     key={devEmail}
-                    className="px-3 py-1.5 bg-gray-950 border border-amber-500/40 text-amber-300 rounded-xl text-xs font-mono font-semibold flex items-center space-x-2"
+                    className="px-3 py-1.5 glass-card border border-amber-500/40 text-amber-300 rounded-xl text-xs font-mono font-semibold flex items-center space-x-2"
                   >
                     <span className="w-2 h-2 rounded-full bg-amber-400"></span>
                     <span>{devEmail}</span>
@@ -565,8 +565,8 @@ export default function AdminCRMPage() {
             </div>
 
             {/* Whitelisted Customer Accounts */}
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
-              <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+            <div className="glass-panel rounded-2xl overflow-hidden shadow-sm">
+              <div className="p-4 border-b border-white/10 flex items-center justify-between">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-300">
                   Developer-Approved Customer Whitelist
                 </h4>
@@ -577,7 +577,7 @@ export default function AdminCRMPage() {
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-gray-950/80 border-b border-gray-800 text-[11px] uppercase font-bold text-gray-400">
+                  <thead className="glass-panel-subtle border-b border-white/10 text-[11px] uppercase font-bold text-gray-400">
                     <tr>
                       <th className="py-3 px-4">Authorized Customer Email</th>
                       <th className="py-3 px-4">Granted By</th>
@@ -586,7 +586,7 @@ export default function AdminCRMPage() {
                       <th className="py-3 px-4 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-800/60 text-gray-300">
+                  <tbody className="divide-y divide-white/5 text-gray-300">
                     {(whitelistData.whitelisted || []).length === 0 ? (
                       <tr>
                         <td colSpan="5" className="py-10 text-center text-gray-500">
@@ -595,7 +595,7 @@ export default function AdminCRMPage() {
                       </tr>
                     ) : (
                       (whitelistData.whitelisted || []).map((w) => (
-                        <tr key={w.id} className="hover:bg-gray-850/60 transition">
+                        <tr key={w.id} className="hover:bg-white/5 transition">
                           <td className="py-3.5 px-4 font-mono font-semibold text-emerald-400">
                             {w.email}
                           </td>
