@@ -326,14 +326,17 @@ export default function HowItWorksPage() {
                 </Link>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
+                <Link to="/app" className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl text-amber-300 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 transition">
+                  ⚡ Demo Login
+                </Link>
                 <Link to="/login" className="glass-button-secondary px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-300 hover:text-white">
                   Sign In
                 </Link>
-                <Link to="/register" className="glass-button-primary px-4 py-1.5 text-xs font-bold rounded-xl text-gray-950">
-                  Get Started
+                <Link to="/app" className="glass-button-primary px-4 py-1.5 font-bold text-xs rounded-xl text-gray-950">
+                  Get Started Free
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>

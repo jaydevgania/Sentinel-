@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { demoLogin } from "../api";
 import ScrollReveal from "../components/ScrollReveal";
 import {
   ShieldCheck,
@@ -28,7 +29,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   Layers,
-  Activity
+  Activity,
+  UserCheck
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -68,9 +70,27 @@ function SectionSub({ children }) {
 }
 
 export default function LandingPage() {
+  const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [loggingInRole, setLoggingInRole] = useState(null);
+
+  const handleQuickDemoLogin = async (role) => {
+    setLoggingInRole(role);
+    try {
+      const res = await demoLogin(role);
+      if (res && res.access_token) {
+        localStorage.setItem("sentinel_token", res.access_token);
+      }
+      navigate("/app");
+    } catch (err) {
+      console.error("Demo login error:", err);
+      navigate("/app");
+    } finally {
+      setLoggingInRole(null);
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -156,20 +176,29 @@ export default function LandingPage() {
                 </button>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleQuickDemoLogin('creator')}
+                  disabled={!!loggingInRole}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl text-amber-300 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 transition cursor-pointer"
+                  title="1-Click Login as Demo Creator for Judges"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  <span>{loggingInRole ? "Entering..." : "⚡ Judge Demo"}</span>
+                </button>
                 <Link
                   to="/login"
-                  className="glass-button-secondary px-4 py-2 text-xs font-semibold rounded-xl text-slate-200 hover:text-white"
+                  className="glass-button-secondary px-3.5 py-2 text-xs font-semibold rounded-xl text-slate-200 hover:text-white"
                 >
                   Sign In
                 </Link>
                 <Link
-                  to="/register"
-                  className="glass-button-primary px-5 py-2 text-xs font-bold rounded-xl text-gray-950 shadow-lg shadow-amber-500/25"
+                  to="/app"
+                  className="glass-button-primary px-4 py-2 text-xs font-bold rounded-xl text-gray-950 shadow-lg shadow-amber-500/25"
                 >
-                  Start Free
+                  Get Started Free
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
@@ -190,9 +219,22 @@ export default function LandingPage() {
             <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="block text-slate-300 hover:text-white text-sm py-1">How It Works</a>
             <Link to="/pricing" onClick={() => setMobileOpen(false)} className="block text-slate-300 hover:text-white text-sm py-1">Pricing</Link>
             <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-slate-300 hover:text-white text-sm py-1">Contact</Link>
-            <div className="flex gap-3 pt-3 border-t border-white/10">
-              <Link to="/app" className="glass-button-primary flex-1 py-2 text-center text-xs font-bold rounded-xl text-gray-950">Start Free</Link>
-              <Link to="/contact" className="glass-button-secondary flex-1 py-2 text-center text-xs font-bold rounded-xl text-slate-200">Book Demo</Link>
+            <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
+              <button
+                onClick={() => { setMobileOpen(false); handleQuickDemoLogin('creator'); }}
+                className="glass-button-primary w-full py-2.5 text-center text-xs font-bold rounded-xl text-gray-950 flex items-center justify-center gap-2"
+              >
+                <Zap className="w-4 h-4 fill-gray-950" />
+                <span>⚡ Judge 1-Click Demo Login</span>
+              </button>
+              <div className="flex gap-2">
+                <Link to="/app" onClick={() => setMobileOpen(false)} className="glass-button-secondary flex-1 py-2 text-center text-xs font-bold rounded-xl text-slate-200">
+                  Open Studio
+                </Link>
+                <Link to="/login" onClick={() => setMobileOpen(false)} className="glass-button-secondary flex-1 py-2 text-center text-xs font-bold rounded-xl text-slate-200">
+                  Sign In
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -233,7 +275,7 @@ export default function LandingPage() {
                 to="/app"
                 className="glass-button-primary group inline-flex items-center gap-2.5 px-8 py-3.5 text-sm font-bold rounded-2xl text-gray-950 shadow-2xl shadow-amber-500/30 hover:scale-[1.02] transition-transform cursor-pointer"
               >
-                <span>Start Reviewing Free</span>
+                <span>Get Started Free • Enter Studio</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <a
@@ -243,6 +285,85 @@ export default function LandingPage() {
                 <span>See Interactive Process</span>
                 <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform text-amber-400" />
               </a>
+            </div>
+
+            {/* ⚡ Dedicated 1-Click Judge Access Bar */}
+            <div className="mt-8 max-w-2xl mx-auto p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-500/30 backdrop-blur-xl shadow-xl shadow-black/30">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="p-1 rounded-md bg-amber-500/20 text-amber-300">
+                    <Zap className="w-4 h-4 fill-amber-400" />
+                  </span>
+                  <div>
+                    <h3 className="text-xs font-black tracking-wide text-white uppercase">
+                      Judge & Hackathon Evaluator Access
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      1-click instant bypass &bull; preloaded brand guidelines &amp; approval workflows
+                    </p>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 border border-white/10 text-[10px] text-amber-300 font-mono">
+                  <span>PW:</span>
+                  <span className="font-bold text-white">demo123</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin('creator')}
+                  disabled={!!loggingInRole}
+                  className="group relative p-2.5 rounded-xl bg-slate-900/70 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-400/50 text-left transition-all cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      ✍️ Creator
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 group-hover:translate-x-0.5 transition-transform">
+                      {loggingInRole === 'creator' ? 'Logging in...' : 'Enter →'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-medium text-slate-300 mt-0.5">Alex Vance</div>
+                  <div className="text-[10px] text-slate-500 truncate">creator@sentinel.ai</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin('manager')}
+                  disabled={!!loggingInRole}
+                  className="group relative p-2.5 rounded-xl bg-slate-900/70 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-400/50 text-left transition-all cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                      👔 Manager
+                    </span>
+                    <span className="text-[10px] text-indigo-400/80 group-hover:translate-x-0.5 transition-transform">
+                      {loggingInRole === 'manager' ? 'Logging in...' : 'Enter →'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-medium text-slate-300 mt-0.5">Jordan Lee</div>
+                  <div className="text-[10px] text-slate-500 truncate">manager@sentinel.ai</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin('compliance')}
+                  disabled={!!loggingInRole}
+                  className="group relative p-2.5 rounded-xl bg-slate-900/70 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-400/50 text-left transition-all cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                      ⚖️ Legal
+                    </span>
+                    <span className="text-[10px] text-emerald-400/80 group-hover:translate-x-0.5 transition-transform">
+                      {loggingInRole === 'compliance' ? 'Logging in...' : 'Enter →'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-medium text-slate-300 mt-0.5">Morgan Reed</div>
+                  <div className="text-[10px] text-slate-500 truncate">compliance@sentinel.ai</div>
+                </button>
+              </div>
             </div>
           </ScrollReveal>
 
