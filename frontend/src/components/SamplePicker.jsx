@@ -16,6 +16,12 @@ export default function SamplePicker({ samples, onSelectSample, activeSampleId }
         return { label: 'Visual & A11y', color: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30', icon: Image };
       case 'sample-6':
         return { label: 'Clean Pass (100%)', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', icon: CheckCircle };
+      case 'sample-7':
+        return { label: '🇮🇳 India (ASCI)', color: 'bg-orange-500/15 text-orange-300 border-orange-500/30', icon: Award };
+      case 'sample-8':
+        return { label: '🇺🇸 US (FTC Rules)', color: 'bg-blue-500/15 text-blue-300 border-blue-500/30', icon: AlertTriangle };
+      case 'sample-9':
+        return { label: '🇪🇺 EU (Green Claims)', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', icon: Sparkles };
       default:
         return { label: 'Demo Post', color: 'bg-white/5 text-slate-300 border-white/10', icon: FileText };
     }
@@ -27,13 +33,13 @@ export default function SamplePicker({ samples, onSelectSample, activeSampleId }
         <div className="flex items-center space-x-2">
           <Award className="w-4 h-4 text-amber-400" />
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-            Quick-Test Suite (Nimbus Coffee Preloaded Posts)
+            Quick-Test Suite (9 Pre-Seeded Failure Modes & Jurisdictions)
           </h3>
         </div>
         <span className="text-[11px] text-slate-400">Click any card to load test case</span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-2.5">
         {samples.map((s) => {
           const badge = getBadge(s.id);
           const Icon = badge.icon;

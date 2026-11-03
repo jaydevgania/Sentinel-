@@ -215,6 +215,34 @@ export default function FindingsStudio({
         </div>
       </div>
 
+      {/* Cultural & Regional Voice Preservation Banner (Round 3 Improvement 3) */}
+      {review.cultural_notes && review.cultural_notes.length > 0 && (
+        <div className="glass-panel-subtle border-emerald-500/30 p-4 rounded-2xl flex items-center justify-between text-xs text-emerald-300 bg-emerald-950/20">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-lg shrink-0">
+              🇮🇳
+            </div>
+            <div>
+              <div className="font-bold text-white flex items-center space-x-2">
+                <span>Cultural Voice Calibration Active (ASCI / Regional English)</span>
+                <span className="text-[10px] bg-emerald-500/25 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-semibold uppercase">
+                  Protected Terms
+                </span>
+              </div>
+              <p className="text-slate-300 text-[11px] mt-0.5">
+                Authentic regional idioms protected from false-positive tone flags:{' '}
+                <strong className="text-emerald-300 font-mono">
+                  {review.cultural_notes.map(n => n.term || n.phrase || (typeof n === 'string' ? n : JSON.stringify(n))).join(', ')}
+                </strong>
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] uppercase font-bold text-emerald-400 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 hidden sm:block">
+            Voice Preserved
+          </span>
+        </div>
+      )}
+
       {/* Main Split Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Panel: Content with Highlighted Spans */}
@@ -295,13 +323,18 @@ export default function FindingsStudio({
                 >
                   {/* Card Header: Type, Severity, Status */}
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                       <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${getSeverityBadge(f.severity)}`}>
                         {f.severity}
                       </span>
                       <span className="text-xs font-bold text-white uppercase tracking-wider">
                         {f.type}
                       </span>
+                      {f.rule_id && (f.rule_id.startsWith('ASCI') || f.rule_id.startsWith('FTC') || f.rule_id.startsWith('EU') || f.rule_id.startsWith('UK')) && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                          § {f.rule_id}
+                        </span>
+                      )}
                     </div>
 
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border capitalize ${getStatusBadge(f.status)}`}>

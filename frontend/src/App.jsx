@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles, ShieldCheck, AlertCircle, Send, CheckCircle2,
-  FileText, Upload, RefreshCw, Layers, Check, CreditCard
+  FileText, Upload, RefreshCw, Layers, Check, CreditCard,
+  Globe, Compass, Eye
 } from 'lucide-react';
 import Header from './components/Header';
 import SamplePicker from './components/SamplePicker';
@@ -11,6 +12,8 @@ import KnowledgeBaseScreen from './components/KnowledgeBaseScreen';
 import InsightsScreen from './components/InsightsScreen';
 import AuthModal from './components/AuthModal';
 import UploadGuidelinesModal from './components/UploadGuidelinesModal';
+import VisualInspectionViewer from './components/VisualInspectionViewer';
+import CompanionSimulatorModal from './components/CompanionSimulatorModal';
 import { useAuth } from './context/AuthContext';
 import {
   fetchWorkspace, resetDemo, submitReview, getReview, fetchQueue
@@ -35,8 +38,12 @@ export default function App() {
   // Form State
   const [channel, setChannel] = useState('instagram');
   const [purpose, setPurpose] = useState('Promotional launch announcement');
+  const [jurisdiction, setJurisdiction] = useState('global');
   const [bodyText, setBodyText] = useState('');
   const [imageMetadata, setImageMetadata] = useState(null);
+
+  // Companion Simulator Modal (Round 3 Improvement 1)
+  const [companionModalOpen, setCompanionModalOpen] = useState(false);
 
   // Review State
   const [currentReview, setCurrentReview] = useState(null);
@@ -84,7 +91,8 @@ export default function App() {
     setChannel(sample.channel);
     setPurpose(sample.purpose);
     setBodyText(sample.text);
-    setImageMetadata(sample.metadata || null);
+    setJurisdiction(sample.jurisdiction || 'global');
+    setImageMetadata(sample.metadata || (sample.id === 'sample-5' ? { is_image: true, foreground_color: '#8A9BA8', background_color: '#FFFFFF' } : null));
   };
 
   const handleCheckContent = async () => {
@@ -99,9 +107,10 @@ export default function App() {
         channel,
         purpose,
         body_text: bodyText,
+        jurisdiction: jurisdiction || 'global',
         ...(currentUser?.workspace_id ? { workspace_id: currentUser.workspace_id, author_id: currentUser.id } : {})
       };
-      if (imageMetadata?.is_image) {
+      if (imageMetadata?.is_image || selectedSample?.id === 'sample-5') {
         payload.image_base64 = "seeded_demo_banner";
       }
 
@@ -250,7 +259,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="flex items-center space-x-3">
+                <div className="flex flex-wrap items-center gap-2">
                   {/* Channel Dropdown */}
                   <div className="flex items-center space-x-1 text-xs">
                     <span className="text-slate-400">Channel:</span>
@@ -266,14 +275,40 @@ export default function App() {
                     </select>
                   </div>
 
+                  {/* Jurisdiction Dropdown (Round 3 Improvement 3) */}
+                  <div className="flex items-center space-x-1 text-xs">
+                    <span className="text-slate-400">Jurisdiction:</span>
+                    <select
+                      value={jurisdiction}
+                      onChange={(e) => setJurisdiction(e.target.value)}
+                      className="glass-input rounded-xl px-2.5 py-1 text-xs text-amber-300 font-medium outline-none border border-amber-500/30"
+                    >
+                      <option value="global" className="bg-[#0b0f19]">Global (General Standards)</option>
+                      <option value="india_asci" className="bg-[#0b0f19]">India (ASCI &amp; Regional Voice)</option>
+                      <option value="us_ftc" className="bg-[#0b0f19]">USA (FTC 16 CFR 255)</option>
+                      <option value="eu_green" className="bg-[#0b0f19]">EU (Directive 2024/825)</option>
+                      <option value="uk_asa" className="bg-[#0b0f19]">UK (ASA / CAP Code)</option>
+                    </select>
+                  </div>
+
                   {/* Purpose */}
                   <input
                     type="text"
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
                     placeholder="Campaign Purpose..."
-                    className="glass-input rounded-xl px-2.5 py-1 text-xs text-white outline-none w-44 placeholder-slate-500"
+                    className="glass-input rounded-xl px-2.5 py-1 text-xs text-white outline-none w-36 placeholder-slate-500"
                   />
+
+                  {/* Inline Companion Simulator Button (Round 3 Improvement 1) */}
+                  <button
+                    onClick={() => setCompanionModalOpen(true)}
+                    className="text-xs font-bold text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 px-3 py-1 rounded-xl border border-cyan-500/30 transition flex items-center space-x-1.5 cursor-pointer shadow-sm"
+                    title="Launch real-time Inline Authoring Companion simulator (Chrome Extension V3)"
+                  >
+                    <Compass className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Inline Companion Demo</span>
+                  </button>
                 </div>
               </div>
 
@@ -317,6 +352,11 @@ export default function App() {
                 </button>
               </div>
             </div>
+
+            {/* Visual Inspection Viewer (Round 3 Improvement 2) */}
+            {currentReview?.visual_inspection && (
+              <VisualInspectionViewer visualData={currentReview.visual_inspection} />
+            )}
 
             {/* Findings Studio (renders findings when checked) */}
             {currentReview && (
@@ -362,7 +402,7 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-gray-900 bg-gray-950 py-4 text-center text-xs text-gray-400">
         <p>
-          Sentinel &bull; CodeStar 30 Round 2 MVP &bull; Team SENTINEL ARK (Jay Devgania, Dharmi Gor, Hazel Kanabar, Shiv Kumbhar)
+          Sentinel &bull; CodeStar 30 Round 3 Final Submission &bull; Team SENTINEL ARK (Jay Devgania, Dharmi Gor, Hazel Kanabar, Shiv Kumbhar)
         </p>
       </footer>
 
@@ -386,6 +426,12 @@ export default function App() {
           if (refreshProfile) refreshProfile().catch(() => {});
         }}
         onNavigateToStudio={() => setActiveTab('review')}
+      />
+
+      {/* Real-Time Inline Authoring Companion Simulator (Round 3 Improvement 1) */}
+      <CompanionSimulatorModal
+        isOpen={companionModalOpen}
+        onClose={() => setCompanionModalOpen(false)}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 from .config import settings
 
@@ -15,6 +15,24 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+def ensure_schema_updated():
+    with engine.connect() as conn:
+        for col, col_type in [
+            ("jurisdiction", "VARCHAR(50) DEFAULT 'global'"),
+            ("visual_inspection", "JSON"),
+            ("cultural_notes", "JSON")
+        ]:
+            try:
+                conn.execute(text(f"ALTER TABLE reviews ADD COLUMN {col} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass
+
+try:
+    ensure_schema_updated()
+except Exception:
+    pass
 
 def get_db():
     db = SessionLocal()

@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from sqlalchemy import text
 from .config import settings
 from .database import engine, Base, SessionLocal
 from .models import Workspace
@@ -19,6 +20,20 @@ FRONTEND_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
 async def lifespan(app: FastAPI):
     # Initialize database tables
     Base.metadata.create_all(bind=engine)
+    
+    # Safe auto-migration for SQLite/Postgres to ensure new Round 3 columns exist
+    with engine.connect() as conn:
+        for col, col_type in [
+            ("jurisdiction", "VARCHAR(50) DEFAULT 'global'"),
+            ("visual_inspection", "JSON"),
+            ("cultural_notes", "JSON")
+        ]:
+            try:
+                conn.execute(text(f"ALTER TABLE reviews ADD COLUMN {col} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass
+
     # Automatically seed the Nimbus Coffee demo brand on initial boot
     db = SessionLocal()
     try:

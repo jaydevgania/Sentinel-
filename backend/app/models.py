@@ -174,6 +174,9 @@ class Review(Base):
     ai_disclosure = Column(Text, nullable=True)
     compliance_score = Column(Integer, default=100)
     category_breakdown = Column(JSON, default=dict)
+    jurisdiction = Column(String(50), default="global")
+    visual_inspection = Column(JSON, nullable=True)
+    cultural_notes = Column(JSON, default=list)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     content_version = relationship("ContentVersion", back_populates="reviews")

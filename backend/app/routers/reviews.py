@@ -16,9 +16,71 @@ from ..engine.deterministic import DeterministicChecker
 from ..engine.ai_adapter import ai_adapter
 from ..engine.compliance_scorer import calculate_compliance_score
 from ..engine.audit import record_audit_event, verify_audit_chain
+from ..engine.jurisdiction_engine import JurisdictionEngine
+from ..engine.visual_engine import VisualLayoutEngine
+from ..schemas import SpanSchema, SourceSchema, FindingCreate
 from .auth import get_current_user_optional
 
 router = APIRouter(prefix="/api", tags=["reviews"])
+
+@router.get("/jurisdictions")
+def get_supported_jurisdictions():
+    """Round 3 Improvement 3: List of policy-aware regulatory jurisdictions."""
+    return {"jurisdictions": JurisdictionEngine.get_supported_jurisdictions()}
+
+@router.post("/companion/check")
+def inline_companion_check(
+    payload: dict,
+    db: Session = Depends(get_db)
+):
+    """
+    Round 3 Improvement 1:
+    Sub-second real-time check endpoint designed specifically for the
+    Sentinel Chrome Extension and inline authoring companions.
+    """
+    text = payload.get("text", "")
+    jurisdiction = payload.get("jurisdiction", "global")
+    ws_id = payload.get("workspace_id", DEMO_WORKSPACE_ID)
+
+    rules = db.query(Rule).filter(Rule.workspace_id == ws_id).all()
+    terms = db.query(Term).filter((Term.workspace_id == ws_id) | (Term.workspace_id == None)).all()
+    facts = db.query(Fact).filter((Fact.workspace_id == ws_id) | (Fact.workspace_id == None)).all()
+    assets = db.query(Asset).filter((Asset.workspace_id == ws_id) | (Asset.workspace_id == None)).all()
+
+    # Fast deterministic + regulatory checks
+    det_findings = DeterministicChecker.run_all(
+        text=text,
+        rules=rules,
+        terms=terms,
+        assets=assets,
+        metadata={}
+    )
+    jur_res = JurisdictionEngine.evaluate_jurisdiction(text, jurisdiction)
+    all_findings = list(det_findings) + jur_res.get("findings", [])
+
+    score, breakdown = calculate_compliance_score(all_findings)
+
+    return {
+        "status": "ok",
+        "score": score,
+        "total_issues": len(all_findings),
+        "jurisdiction": jurisdiction,
+        "findings": [
+            {
+                "id": f"comp-{i}",
+                "type": f.type,
+                "severity": f.severity,
+                "span": {"start": f.span.start, "end": f.span.end},
+                "text": text[f.span.start:f.span.end] if f.span.end <= len(text) else "",
+                "issue": f.issue,
+                "explanation": f.explanation,
+                "suggestion": f.suggestion,
+                "source": {"type": f.source.type, "id": f.source.id}
+            }
+            for i, f in enumerate(all_findings)
+        ],
+        "cultural_notes": jur_res.get("cultural_notes", [])
+    }
 
 @router.post("/reviews", response_model=ReviewResponse)
 def submit_review(
@@ -28,6 +90,7 @@ def submit_review(
 ):
     ws_id = data.workspace_id or (current_user.workspace_id if current_user else DEMO_WORKSPACE_ID)
     author_id = data.author_id or (current_user.id if current_user else CREATOR_USER_ID)
+    target_jurisdiction = data.jurisdiction or "global"
 
     # 1. Load Knowledge Base strictly for this brand workspace
     rules = db.query(Rule).filter(Rule.workspace_id == ws_id).all()
@@ -52,7 +115,33 @@ def submit_review(
         metadata=metadata
     )
 
-    # 3. Run AI Review Checker (Tone, Claims, Messaging, Intent Guard)
+    # 3. Round 3 Improvement 3: Multi-Jurisdictional Regulatory Evaluation
+    jur_eval = JurisdictionEngine.evaluate_jurisdiction(data.body_text, target_jurisdiction)
+    jurisdiction_findings = jur_eval.get("findings", [])
+    cultural_notes = jur_eval.get("cultural_notes", [])
+
+    # 4. Round 3 Improvement 2: Multi-Modal Visual Layout & Logo Clear-Space Engine
+    visual_inspection_data = None
+    visual_rule_id = next((r.id for r in rules if r.category == "visual"), "rule-visual-01")
+    if data.image_base64:
+        visual_inspection_data = VisualLayoutEngine.analyze_image_layout(
+            image_base64=data.image_base64,
+            brand_palette=[a.value for a in assets if a.type == "palette"] or None
+        )
+        # Convert visual violations into findings
+        for v in visual_inspection_data.get("violations", []):
+            deterministic_findings.append(FindingCreate(
+                type="visual",
+                severity=v.get("severity", "high"),
+                confidence=0.98,
+                span=SpanSchema(start=0, end=min(len(data.body_text), 15)),
+                issue=v.get("title", "Visual Layout Defect"),
+                explanation=v.get("details", ""),
+                source=SourceSchema(type="rule", id=visual_rule_id),
+                suggestion=v.get("fix", None)
+            ))
+
+    # 5. Run AI Review Checker (Tone, Claims, Messaging, Intent Guard)
     ai_findings, ai_model, ai_disclosure = ai_adapter.review_content(
         text=data.body_text,
         rules=rules,
@@ -62,21 +151,21 @@ def submit_review(
         purpose=data.purpose
     )
 
-    # 4. Merge Findings (deterministic findings have highest confidence)
-    merged_findings = list(deterministic_findings)
+    # 6. Merge Findings (deterministic & jurisdictional findings have highest confidence)
+    merged_findings = list(deterministic_findings) + list(jurisdiction_findings)
     for a_find in ai_findings:
         # Check if an exact overlapping span was already detected deterministically
         overlaps = any(
             abs(d_find.span.start - a_find.span.start) <= 3 and abs(d_find.span.end - a_find.span.end) <= 3
-            for d_find in deterministic_findings
+            for d_find in merged_findings
         )
         if not overlaps:
             merged_findings.append(a_find)
 
-    # 5. Compute Compliance Score (0 to 100) & Breakdown
+    # 7. Compute Compliance Score (0 to 100) & Breakdown
     score, breakdown = calculate_compliance_score(merged_findings)
 
-    # 6. Persist Content, Version, Review & Findings in Database
+    # 8. Persist Content, Version, Review & Findings in Database
     content = Content(
         workspace_id=ws_id,
         author_id=author_id,
@@ -102,7 +191,10 @@ def submit_review(
         ai_model=ai_model,
         ai_disclosure=ai_disclosure,
         compliance_score=score,
-        category_breakdown=breakdown
+        category_breakdown=breakdown,
+        jurisdiction=target_jurisdiction,
+        visual_inspection=visual_inspection_data,
+        cultural_notes=cultural_notes
     )
     db.add(review)
     db.flush()
@@ -161,7 +253,10 @@ def submit_review(
         compliance_score=review.compliance_score,
         category_breakdown=review.category_breakdown or {},
         created_at=review.created_at,
-        findings=[FindingResponse.model_validate(f) for f in persisted_findings]
+        findings=[FindingResponse.model_validate(f) for f in persisted_findings],
+        jurisdiction=review.jurisdiction or "global",
+        cultural_notes=review.cultural_notes or [],
+        visual_inspection=review.visual_inspection
     )
 
 @router.get("/reviews/{review_id}")
@@ -200,7 +295,10 @@ def get_review(review_id: str, db: Session = Depends(get_db)):
         "compliance_score": review.compliance_score,
         "category_breakdown": review.category_breakdown or {},
         "created_at": review.created_at,
-        "findings": enriched_findings
+        "findings": enriched_findings,
+        "jurisdiction": review.jurisdiction or "global",
+        "cultural_notes": review.cultural_notes or [],
+        "visual_inspection": review.visual_inspection
     }
 
 @router.patch("/findings/{finding_id}")

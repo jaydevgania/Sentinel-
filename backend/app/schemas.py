@@ -115,6 +115,7 @@ class ReviewCreateRequest(BaseModel):
     body_text: str
     image_base64: Optional[str] = None
     filename: Optional[str] = None
+    jurisdiction: Optional[str] = "global" # global, india_asci, us_ftc, eu_green, uk_asa
 
 class ReviewDecisionRequest(BaseModel):
     reviewer_id: Optional[str] = None
@@ -136,6 +137,9 @@ class ReviewResponse(BaseModel):
     category_breakdown: Dict[str, Any]
     created_at: datetime
     findings: List[FindingResponse] = []
+    jurisdiction: Optional[str] = "global"
+    cultural_notes: Optional[List[Dict[str, Any]]] = []
+    visual_inspection: Optional[Dict[str, Any]] = None
 
     class Config:
         from_attributes = True

@@ -296,6 +296,26 @@ export async function fetchSamples() {
   return res.json();
 }
 
+export async function fetchJurisdictions() {
+  const res = await fetch(`${BASE_URL}/jurisdictions`);
+  if (!res.ok) return { jurisdictions: [] };
+  return res.json();
+}
+
+export async function checkCompanion(text, jurisdiction = 'global') {
+  const token = getStoredToken();
+  const res = await fetch(`${BASE_URL}/companion/check`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify({ text, jurisdiction })
+  });
+  if (!res.ok) throw new Error('Inline check failed');
+  return res.json();
+}
+
 export async function submitReview(data) {
   const token = getStoredToken();
   const res = await fetch(`${BASE_URL}/reviews`, {

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinel Companion</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="sentinel-popup">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo-badge">🛡️</div>
+        <div>
+          <div class="title">SENTINEL</div>
+          <div class="subtitle">Authoring Companion v3.0</div>
+        </div>
+      </div>
+      <div id="connStatus" class="status-badge connected">Live Connected</div>
+    </header>
+
+    <!-- Score & Quick Stats -->
+    <div class="score-card">
+      <div class="score-dial">
+        <div id="scoreValue" class="score-num">--</div>
+        <div class="score-lbl">Score</div>
+      </div>
+      <div class="stats-col">
+        <div class="stat-row">
+          <span class="stat-name">Target Brand:</span>
+          <span class="stat-val" id="activeBrand">Nimbus Coffee</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Jurisdiction:</span>
+          <select id="jurisdictionSelect" class="jurisdiction-select">
+            <option value="global">🌐 Global Standard</option>
+            <option value="india_asci">🇮🇳 India (ASCI & Voice)</option>
+            <option value="us_ftc">🇺🇸 United States (FTC)</option>
+            <option value="eu_green">🇪🇺 EU Green Claims</option>
+            <option value="uk_asa">🇬🇧 UK ASA Code</option>
+          </select>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Issues Flagged:</span>
+          <span id="issuesCount" class="stat-badge">0 issues</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Check / Active Input -->
+    <div class="input-section">
+      <div class="section-label">Active Draft Text</div>
+      <textarea id="draftText" rows="4" placeholder="Type or paste draft copy here, or check text in your current browser tab..."></textarea>
+      <div class="actions-row">
+        <button id="grabPageTextBtn" class="btn btn-secondary" title="Import text from currently focused element">Get Page Text</button>
+        <button id="checkBtn" class="btn btn-primary">Check Compliance</button>
+      </div>
+    </div>
+
+    <!-- Findings Section -->
+    <div class="findings-section">
+      <div class="section-label">Real-Time Grounded Findings</div>
+      <div id="findingsContainer" class="findings-list">
+        <div class="empty-state">Enter copy above or click "Check Compliance" to scan against brand rules.</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <a href="https://sentinel-kappa-silk.vercel.app/app" target="_blank" class="launch-studio-link">
+        Launch Full Sentinel Enterprise Studio &rarr;
+      </a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

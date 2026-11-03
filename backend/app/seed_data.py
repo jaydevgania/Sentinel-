@@ -72,6 +72,39 @@ SAMPLE_POSTS = [
         "channel": "instagram",
         "purpose": "Morning Coffee Ritual Post",
         "metadata": {}
+    },
+    {
+        "id": "sample-7",
+        "title": "7. India (ASCI & Hinglish Voice)",
+        "category": "Multi-Jurisdiction",
+        "description": "Tests ASCI code: Indian English idioms ('yaar', 'jugaad') are culturally permitted, while '#1 leading' is flagged under ASCI Ch. 1.",
+        "text": "Arre yaar! Start your morning with Nimbus Coffee crafted with pure jugaad. We are proudly the #1 leading coffee brand in India!",
+        "channel": "instagram",
+        "purpose": "Indian Regional Campaign",
+        "jurisdiction": "india_asci",
+        "metadata": { "jurisdiction": "india_asci" }
+    },
+    {
+        "id": "sample-8",
+        "title": "8. US (FTC Endorsement Rules)",
+        "category": "Multi-Jurisdiction",
+        "description": "Tests FTC 16 CFR Part 255: flags missing upfront #Ad disclosure on partnership and unverified '100% effective' guarantee.",
+        "text": "Excited to partner with Nimbus Coffee! Use my promo code COFFEE20 for 20% off. Clinically proven to cure morning fatigue with 100% effective results!",
+        "channel": "instagram",
+        "purpose": "US Influencer Promotion",
+        "jurisdiction": "us_ftc",
+        "metadata": { "jurisdiction": "us_ftc" }
+    },
+    {
+        "id": "sample-9",
+        "title": "9. EU (Green Claims Directive)",
+        "category": "Multi-Jurisdiction",
+        "description": "Tests EU Directive 2024/825: flags generic uncertified 'carbon neutral' and 'eco-friendly' greenwashing claims.",
+        "text": "Enjoy our 100% sustainable, carbon neutral cold brew. Nimbus Coffee is proud to provide the ultimate green choice with climate positive beans.",
+        "channel": "website",
+        "purpose": "EU Sustainability Campaign",
+        "jurisdiction": "eu_green",
+        "metadata": { "jurisdiction": "eu_green" }
     }
 ]
 

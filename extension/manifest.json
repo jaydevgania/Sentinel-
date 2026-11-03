@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Sentinel — Brand Governance & Real-Time Compliance Companion",
+  "version": "3.0.0",
+  "description": "Real-time pre-publication brand compliance, fact-checking, and intent-preserving suggestions directly inside your browser and Google Docs.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Sentinel Brand Compliance"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "https://*.onrender.com/*",
+    "https://sentinel-kappa-silk.vercel.app/*"
+  ]
+}
