@@ -58,8 +58,12 @@ export default function RegisterPage() {
     <div className="min-h-screen text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-amber-500/30 selection:text-amber-200">
       <ScrollReveal animation="fade-up" className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
         <Link to="/" className="inline-flex items-center justify-center space-x-2.5 mb-6 group">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:scale-105 transition">
-            <ShieldCheck className="w-6 h-6 text-gray-950 font-bold" />
+          <div className="w-12 h-12 rounded-2xl bg-black/60 border border-amber-500/30 overflow-hidden flex items-center justify-center shadow-xl shadow-amber-500/25 group-hover:scale-105 group-hover:border-amber-400/60 group-hover:shadow-amber-500/40 transition">
+            <img
+              src="/sentinel-mark-transparent.png"
+              alt="Sentinel Logo"
+              className="w-full h-full object-contain p-1 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+            />
           </div>
           <span className="font-black text-2xl tracking-wider text-white group-hover:text-amber-400 transition">
             SENTINEL

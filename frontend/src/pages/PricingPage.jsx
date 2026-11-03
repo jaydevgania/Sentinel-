@@ -221,8 +221,8 @@ export default function PricingPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <nav className="flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-2">
-            <Link to="/" className="hover:text-amber-400 transition-colors flex items-center gap-1.5 font-bold">
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <Link to="/" className="hover:text-amber-400 transition-colors flex items-center gap-2 font-bold">
+              <img src="/sentinel-mark-transparent.png" alt="Sentinel" className="w-5 h-5 object-contain" />
               <span>Sentinel</span>
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-slate-600" />

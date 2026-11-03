@@ -30,8 +30,12 @@ export default function Header({
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
           <Link to="/" className="flex items-center space-x-3 group transition" title="Go to Home / Landing Page">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-105 group-hover:shadow-amber-500/40 transition-all">
-              <ShieldCheck className="w-6 h-6 text-gray-950 font-bold" />
+            <div className="w-10 h-10 rounded-2xl bg-black/60 border border-amber-500/30 overflow-hidden flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 group-hover:border-amber-400/60 group-hover:shadow-amber-500/40 transition-all">
+              <img
+                src="/sentinel-mark-transparent.png"
+                alt="Sentinel Logo"
+                className="w-full h-full object-contain p-1 drop-shadow-[0_0_12px_rgba(245,158,11,0.5)]"
+              />
             </div>
             <div>
               <div className="flex items-center space-x-2">

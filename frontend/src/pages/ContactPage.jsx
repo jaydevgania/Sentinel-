@@ -124,8 +124,8 @@ export default function ContactPage() {
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-1.5">
-            <Link to="/" className="transition hover:text-amber-400 font-bold flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <Link to="/" className="transition hover:text-amber-400 font-bold flex items-center gap-2">
+              <img src="/sentinel-mark-transparent.png" alt="Sentinel" className="w-5 h-5 object-contain" />
               <span>Sentinel</span>
             </Link>
             <ChevronRight className="h-3.5 w-3.5 text-slate-600" />

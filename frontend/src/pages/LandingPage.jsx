@@ -111,8 +111,12 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 group-hover:shadow-amber-500/40 transition-all">
-              <ShieldCheck className="h-6 w-6 text-gray-950 font-bold" />
+            <div className="w-10 h-10 rounded-xl bg-black/60 border border-amber-500/30 overflow-hidden flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 group-hover:border-amber-400/60 group-hover:shadow-amber-500/40 transition-all">
+              <img
+                src="/sentinel-mark-transparent.png"
+                alt="Sentinel Logo"
+                className="w-full h-full object-contain p-1 drop-shadow-[0_0_12px_rgba(245,158,11,0.5)]"
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-black tracking-wider text-white group-hover:text-amber-400 transition-colors">
@@ -243,11 +247,20 @@ export default function LandingPage() {
       {/* ────────────────── HERO SECTION ────────────────── */}
       <section className="relative pt-36 pb-20 sm:pt-44 sm:pb-32 overflow-hidden">
         <div className="relative max-w-5xl mx-auto px-6 text-center">
-          {/* Floating Live Badge */}
+          {/* Floating Hero Logo & Badge */}
           <ScrollReveal animation="fade-up" delay={50}>
-            <div className="inline-flex items-center gap-2.5 rounded-full px-4 py-1.5 text-xs font-semibold glass-pill border border-amber-500/30 text-amber-300 mb-8 shadow-lg shadow-amber-500/10 animate-float">
-              <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-ping" />
-              <span>Grounded AI Brand Guardrails &bull; Zero Hallucinations</span>
+            <div className="flex flex-col items-center justify-center mb-6">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-black/60 border border-amber-500/30 p-2 shadow-2xl shadow-amber-500/25 mb-4 animate-float">
+                <img
+                  src="/sentinel-mark-transparent.png"
+                  alt="Sentinel Emblem"
+                  className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]"
+                />
+              </div>
+              <div className="inline-flex items-center gap-2.5 rounded-full px-4 py-1.5 text-xs font-semibold glass-pill border border-amber-500/30 text-amber-300 shadow-lg shadow-amber-500/10">
+                <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+                <span>Grounded AI Brand Guardrails &bull; Zero Hallucinations</span>
+              </div>
             </div>
           </ScrollReveal>
 
@@ -862,8 +875,12 @@ export default function LandingPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-14">
             <div className="lg:col-span-1">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-yellow-400 flex items-center justify-center">
-                  <ShieldCheck className="h-5 w-5 text-gray-950 font-bold" />
+                <div className="w-8 h-8 rounded-lg bg-black/60 border border-amber-500/30 overflow-hidden flex items-center justify-center shadow-md shadow-amber-500/20">
+                  <img
+                    src="/sentinel-mark-transparent.png"
+                    alt="Sentinel Logo"
+                    className="w-full h-full object-contain p-0.5"
+                  />
                 </div>
                 <span className="text-base font-black tracking-wider text-white">
                   SENTINEL

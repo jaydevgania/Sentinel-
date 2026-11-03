@@ -159,9 +159,9 @@ export default function AdminCRMPage() {
       <header className="glass-panel sticky top-0 z-40 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center font-bold text-gray-950 shadow-md shadow-amber-900/20">
-                <Shield className="w-5 h-5 text-gray-950" />
+            <Link to="/" className="flex items-center space-x-2.5">
+              <div className="w-9 h-9 rounded-xl bg-black/60 border border-amber-500/30 overflow-hidden flex items-center justify-center shadow-md shadow-amber-900/20">
+                <img src="/sentinel-mark-transparent.png" alt="Sentinel Logo" className="w-full h-full object-contain p-0.5" />
               </div>
               <span className="font-extrabold text-lg text-white">SENTINEL</span>
             </Link>

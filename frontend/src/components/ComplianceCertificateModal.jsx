@@ -71,8 +71,12 @@ export default function ComplianceCertificateModal({ isOpen, onClose, review }) 
 
         {/* Certificate Header Banner */}
         <div className="text-center space-y-2 border-b border-white/10 pb-5">
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-xl shadow-amber-500/30">
-            <ShieldCheck className="w-9 h-9 text-gray-950 font-black" />
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-black/70 border border-amber-500/40 p-2 flex items-center justify-center shadow-2xl shadow-amber-500/30">
+            <img
+              src="/sentinel-mark-transparent.png"
+              alt="Sentinel Seal"
+              className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]"
+            />
           </div>
           <div>
             <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30">
