@@ -759,8 +759,8 @@ def build_pdf(filename="Sentinel_Round_3_Final_Submission.pdf"):
     # Formal Sign-Off Table
     signoff_data = [
         [
-            Paragraph("<b>Submitted By:</b> Team SENTINEL ARK<br/><b>Team Leader:</b> Jay Devgania (<font color='#0284c7'>jaydevgania@gmail.com</font>)<br/><b>Engineers:</b> Shiv Kumbhar, Dharmi Gor, Hazel Kanabar", table_cell_style),
-            Paragraph("<b>Status:</b> Production Ready &bull; Final Round Certified<br/><b>Verified Tests:</b> 11/11 Test Suites Passing (100%)<br/><b>Submission Date:</b> November 3, 2026", table_cell_style)
+            Paragraph("<b>Submitted By:</b> Team SENTINEL ARK<br/><b>Team Leader:</b> Jay Devgania (<font color='#0284c7'>devgania1@gmail.com</font>)<br/><b>Engineers:</b> Shiv Kumbhar, Dharmi Gor, Hazel Kanabar", table_cell_style),
+            Paragraph("<b>Status:</b> Production Ready &bull; Final Round Certified<br/><b>Verified Tests:</b> 12/12 Test Suites Passing (100%)<br/><b>Submission Date:</b> November 3, 2026", table_cell_style)
         ]
     ]
     signoff_table = Table(signoff_data, colWidths=[260, 272])

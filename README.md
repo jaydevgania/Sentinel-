@@ -197,5 +197,5 @@ npm.cmd run dev
 ---
 
 **Team SENTINEL ARK**  
-Jay Devgania (Team Lead &bull; `jaydevgania@gmail.com`) &bull; Shiv Kumbhar &bull; Dharmi Gor &bull; Hazel Kanabar  
+Jay Devgania (Team Lead &bull; `devgania1@gmail.com`) &bull; Shiv Kumbhar &bull; Dharmi Gor &bull; Hazel Kanabar  
 *CodeStar 30 &bull; November 2026*
