@@ -4,8 +4,6 @@
 **Team SENTINEL ARK**: Jay Devgania (AI & Architecture), Shiv Kumbhar (Backend & Data), Dharmi Gor (Frontend & UX), Hazel Kanabar (QA & Research)  
 **Production Deployment**: [https://sentinel-kappa-silk.vercel.app](https://sentinel-kappa-silk.vercel.app)  
 **Source Code Repository**: [https://github.com/jaydevgania/Sentinel-](https://github.com/jaydevgania/Sentinel-)  
-**Round 3 Product Report**: [Sentinel_Round_3_Final_Submission.pdf](Sentinel_Round_3_Final_Submission.pdf) (Exact 6 Pages)
-
 ---
 
 ## ⚡ Judge Quick Access & Demo Credentials
