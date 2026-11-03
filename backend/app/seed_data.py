@@ -118,7 +118,7 @@ def seed_demo_workspace(db: Session, force_reset: bool = False) -> Workspace:
     db.query(Fact).filter((Fact.workspace_id == DEMO_WORKSPACE_ID) | (Fact.id.in_(["fact-founding-01", "fact-outlets-02", "fact-steep-03", "fact-beans-04"]))).delete(synchronize_session=False)
     db.query(Term).filter(Term.id.in_(["term-coldbrew-01", "term-teammembers-02", "term-brandname-03"])).delete(synchronize_session=False)
     db.query(Rule).filter((Rule.workspace_id == DEMO_WORKSPACE_ID) | (Rule.id.in_(["rule-tone-01", "rule-term-01", "rule-msg-01", "rule-access-01", "rule-visual-01"]))).delete(synchronize_session=False)
-    db.query(User).filter(User.workspace_id == DEMO_WORKSPACE_ID).delete(synchronize_session=False)
+    db.query(User).filter((User.workspace_id == DEMO_WORKSPACE_ID) | (User.email.in_(["creator@sentinel.ai", "manager@sentinel.ai", "compliance@sentinel.ai", "demo@sentinel.ai"]))).delete(synchronize_session=False)
     if ws:
         db.delete(ws)
     db.commit()
@@ -131,11 +131,15 @@ def seed_demo_workspace(db: Session, force_reset: bool = False) -> Workspace:
     )
     db.add(workspace)
 
-    # 2. Users
+    # 2. Users with Pre-Configured Demo Credentials (Password: demo123)
+    import hashlib
+    _salt = "sentineldemosalt1"
+    _demo_hash = f"{_salt}:" + hashlib.pbkdf2_hmac('sha256', b'demo123', _salt.encode('utf-8'), 100000).hex()
     users = [
-        User(id=CREATOR_USER_ID, workspace_id=DEMO_WORKSPACE_ID, name="Alex Vance", role="creator"),
-        User(id=MANAGER_USER_ID, workspace_id=DEMO_WORKSPACE_ID, name="Jordan Lee", role="manager"),
-        User(id=REVIEWER_USER_ID, workspace_id=DEMO_WORKSPACE_ID, name="Morgan Reed", role="reviewer")
+        User(id=CREATOR_USER_ID, workspace_id=DEMO_WORKSPACE_ID, name="Alex Vance", role="creator", email="creator@sentinel.ai", hashed_password=_demo_hash, company_name="Nimbus Coffee", subscription_tier="pro", subscription_status="active", is_approved=1),
+        User(id=MANAGER_USER_ID, workspace_id=DEMO_WORKSPACE_ID, name="Jordan Lee", role="manager", email="manager@sentinel.ai", hashed_password=_demo_hash, company_name="Nimbus Coffee", subscription_tier="enterprise", subscription_status="active", is_approved=1),
+        User(id=REVIEWER_USER_ID, workspace_id=DEMO_WORKSPACE_ID, name="Morgan Reed", role="reviewer", email="compliance@sentinel.ai", hashed_password=_demo_hash, company_name="Nimbus Coffee", subscription_tier="enterprise", subscription_status="active", is_approved=1, is_admin=1),
+        User(id="usr-demo-general", workspace_id=DEMO_WORKSPACE_ID, name="Judge Demo User", role="manager", email="demo@sentinel.ai", hashed_password=_demo_hash, company_name="Nimbus Coffee", subscription_tier="enterprise", subscription_status="active", is_approved=1)
     ]
     db.add_all(users)
 

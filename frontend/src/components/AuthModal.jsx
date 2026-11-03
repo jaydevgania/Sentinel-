@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
-  X, ShieldCheck, Mail, Lock, Building2, User, Sparkles, Check, AlertCircle, CreditCard
+  X, ShieldCheck, Mail, Lock, Building2, User, Sparkles, Check, AlertCircle, CreditCard,
+  Zap, UserCheck, Shield
 } from 'lucide-react';
-import { loginUser, registerUser, upgradeSubscription } from '../api';
+import { loginUser, registerUser, upgradeSubscription, demoLogin } from '../api';
 import GoogleSignInButton from './GoogleSignInButton';
 
 export default function AuthModal({
@@ -31,6 +32,26 @@ export default function AuthModal({
   const [cardCvc, setCardCvc] = useState('888');
 
   if (!isOpen) return null;
+
+  const handleQuickDemoLogin = async (demoRole) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await demoLogin(demoRole);
+      onSuccess(res.user);
+      onClose();
+    } catch (err) {
+      setError(`Demo login failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePreFill = (demoEmail) => {
+    setEmail(demoEmail);
+    setPassword('demo123');
+    setMode('login');
+  };
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -115,6 +136,94 @@ export default function AuthModal({
             >
               Register New Brand
             </button>
+          </div>
+        )}
+
+        {/* Judge Quick Access & Demo Credentials */}
+        {mode === 'login' && (
+          <div className="mb-4 p-3.5 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 rounded-2xl space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-300">
+                <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <span>Judge Quick Access &bull; 1-Click Demo Login</span>
+              </div>
+              <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-mono font-bold">
+                PWD: demo123
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('creator')}
+                disabled={loading}
+                className="p-2 rounded-xl bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/40 text-left transition group cursor-pointer"
+                title="Log in as Content Creator (creator@sentinel.ai / demo123)"
+              >
+                <div className="flex items-center space-x-1 text-[11px] font-bold text-white group-hover:text-amber-300">
+                  <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                  <span className="truncate">Creator</span>
+                </div>
+                <div className="text-[9px] text-slate-400 truncate mt-0.5">Alex Vance</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('manager')}
+                disabled={loading}
+                className="p-2 rounded-xl bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/40 text-left transition group cursor-pointer"
+                title="Log in as Brand Manager (manager@sentinel.ai / demo123)"
+              >
+                <div className="flex items-center space-x-1 text-[11px] font-bold text-white group-hover:text-amber-300">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                  <span className="truncate">Manager</span>
+                </div>
+                <div className="text-[9px] text-slate-400 truncate mt-0.5">Jordan Lee</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('compliance')}
+                disabled={loading}
+                className="p-2 rounded-xl bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/40 text-left transition group cursor-pointer"
+                title="Log in as Compliance Officer (compliance@sentinel.ai / demo123)"
+              >
+                <div className="flex items-center space-x-1 text-[11px] font-bold text-white group-hover:text-amber-300">
+                  <UserCheck className="w-3 h-3 text-cyan-400 shrink-0" />
+                  <span className="truncate">Legal / Audit</span>
+                </div>
+                <div className="text-[9px] text-slate-400 truncate mt-0.5">Morgan Reed</div>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-white/10">
+              <span>Manual Credentials:</span>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => handlePreFill('creator@sentinel.ai')}
+                  className="text-amber-400 hover:underline cursor-pointer"
+                >
+                  Fill Creator
+                </button>
+                <span>&bull;</span>
+                <button
+                  type="button"
+                  onClick={() => handlePreFill('manager@sentinel.ai')}
+                  className="text-amber-400 hover:underline cursor-pointer"
+                >
+                  Fill Manager
+                </button>
+                <span>&bull;</span>
+                <button
+                  type="button"
+                  onClick={() => handlePreFill('compliance@sentinel.ai')}
+                  className="text-amber-400 hover:underline cursor-pointer"
+                >
+                  Fill Legal
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

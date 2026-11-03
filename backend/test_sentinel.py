@@ -17,7 +17,7 @@ def test_demo_workspace():
     assert res.status_code == 200
     data = res.json()
     assert data["workspace"]["brand_name"] == "Nimbus Coffee"
-    assert len(data["users"]) == 3
+    assert len(data["users"]) >= 3
     assert len(data["sample_posts"]) >= 6
 
 def test_rules_and_terms():
@@ -433,6 +433,66 @@ def test_round3_improvements():
     eu_data = eu_res.json()
     assert any("EU-Directive-2024/825" in f["issue"] or "EU-Directive-2024/825" in f["source_id"] for f in eu_data["findings"])
 
+def test_demo_accounts_and_workflows():
+    """
+    Verify Judge Demo Accounts & Cross-Role Workflows:
+    1. One-click demo login for Creator, Manager, and Compliance Officer.
+    2. Manual credentials login with demo123 for all three demo accounts.
+    3. Workflow permission gating: Creator submits to queue, Manager approves in queue.
+    """
+    # 1. Test One-Click Demo Login Endpoint
+    for role in ["creator", "manager", "compliance"]:
+        res = client.post("/api/auth/demo-login", json={"role": role})
+        assert res.status_code == 200, f"Demo login failed for role {role}"
+        data = res.json()
+        assert data["status"] == "success"
+        assert "token" in data
+        assert "@sentinel.ai" in data["user"]["email"]
+
+    # 2. Test Manual Credentials Login with demo123
+    demo_creds = [
+        ("creator@sentinel.ai", "creator"),
+        ("manager@sentinel.ai", "manager"),
+        ("compliance@sentinel.ai", "reviewer")
+    ]
+    for email, expected_role in demo_creds:
+        login_res = client.post("/api/auth/login", json={"email": email, "password": "demo123"})
+        assert login_res.status_code == 200, f"Manual login failed for {email}"
+        user_info = login_res.json()["user"]
+        assert user_info["role"] == expected_role
+
+    # 3. Creator Workflow Submission
+    creator_login = client.post("/api/auth/demo-login", json={"role": "creator"}).json()
+    creator_token = creator_login["token"]
+
+    submit_res = client.post("/api/reviews", json={
+        "channel": "instagram",
+        "purpose": "Holiday campaign",
+        "body_text": "Come celebrate at Nimbus Coffee with our slow steeped cold brew crafted by our team members."
+    }, headers={"Authorization": f"Bearer {creator_token}"})
+    assert submit_res.status_code == 200
+    review_id = submit_res.json()["id"]
+
+    # Creator attempts to approve -> Blocked with 403 Forbidden
+    blocked_approval = client.post(f"/api/reviews/{review_id}/decision", json={
+        "reviewer_role": "creator",
+        "outcome": "approved",
+        "reason": "Self approval attempt"
+    }, headers={"Authorization": f"Bearer {creator_token}"})
+    assert blocked_approval.status_code == 403
+
+    # 4. Manager Workflow Approval
+    manager_login = client.post("/api/auth/demo-login", json={"role": "manager"}).json()
+    manager_token = manager_login["token"]
+
+    manager_approval = client.post(f"/api/reviews/{review_id}/decision", json={
+        "reviewer_role": "manager",
+        "outcome": "approved",
+        "reason": "Approved by Jordan Lee via Manager Workflow"
+    }, headers={"Authorization": f"Bearer {manager_token}"})
+    assert manager_approval.status_code == 200
+    assert manager_approval.json()["decision"] == "approved"
+
 if __name__ == "__main__":
     print("Running Sentinel automated verification suite...")
     test_health()
@@ -459,4 +519,6 @@ if __name__ == "__main__":
     print("[PASS] Cryptographic Audit Trail Verified")
     test_round3_improvements()
     print("[PASS] Round 3 Deliverables (Companion, Visual Engine, Jurisdictions) Verified")
-    print("\nALL SECTION 11 TESTS PASSED WITH 100% SUCCESS!")
+    test_demo_accounts_and_workflows()
+    print("[PASS] Judge Demo Accounts & Cross-Role Workflows Verified")
+    print("\nALL SECTION 11 & ROUND 3 TESTS PASSED WITH 100% SUCCESS!")

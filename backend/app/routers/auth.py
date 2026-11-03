@@ -266,12 +266,84 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
         }
     }
 
+class DemoLoginRequest(BaseModel):
+    role: str = "creator" # creator, manager, compliance
+
+# 1.5 One-Click Judge Demo Login Endpoint
+@router.post("/auth/demo-login")
+def demo_login(data: DemoLoginRequest, db: Session = Depends(get_db)):
+    role_req = data.role.lower().strip()
+    email_map = {
+        "creator": "creator@sentinel.ai",
+        "manager": "manager@sentinel.ai",
+        "reviewer": "compliance@sentinel.ai",
+        "compliance": "compliance@sentinel.ai",
+        "admin": "compliance@sentinel.ai"
+    }
+    target_email = email_map.get(role_req, "creator@sentinel.ai")
+    user = db.query(User).filter(User.email == target_email).first()
+
+    if not user:
+        from ..seed_data import seed_demo_workspace
+        seed_demo_workspace(db)
+        user = db.query(User).filter(User.email == target_email).first()
+
+    if not user:
+        target_role = "reviewer" if role_req in ["compliance", "admin", "reviewer"] else role_req
+        user = User(
+            workspace_id="ws-nimbus-demo-001",
+            name=f"Demo {target_role.capitalize()}",
+            email=target_email,
+            role=target_role,
+            is_approved=1,
+            is_admin=1 if target_role == "reviewer" else 0,
+            subscription_tier="enterprise" if target_role in ["manager", "reviewer"] else "pro",
+            subscription_status="active"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    user.last_login_at = datetime.now(timezone.utc)
+    db.commit()
+
+    token = create_token(user.id, user.email, user.role)
+    ws = db.query(Workspace).filter(Workspace.id == user.workspace_id).first()
+
+    return {
+        "status": "success",
+        "token": token,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "company_name": user.company_name or "Nimbus Coffee",
+            "role": user.role,
+            "is_admin": bool(user.is_admin),
+            "subscription_tier": user.subscription_tier or "enterprise",
+            "subscription_status": user.subscription_status or "active",
+            "workspace_id": user.workspace_id,
+            "brand_name": ws.brand_name if ws else "Nimbus Coffee"
+        }
+    }
+
 # 2. Login Endpoint
 @router.post("/auth/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     email_clean = data.email.lower().strip()
     user = db.query(User).filter(User.email == email_clean).first()
-    if not user or not verify_password(data.password, user.hashed_password or ""):
+    
+    # Check if this is a demo account with the standard password demo123
+    is_demo_req = (data.password == "demo123") and (email_clean in ["creator@sentinel.ai", "manager@sentinel.ai", "compliance@sentinel.ai", "demo@sentinel.ai", "reviewer@sentinel.ai"])
+    if is_demo_req and not user:
+        from ..seed_data import seed_demo_workspace
+        seed_demo_workspace(db)
+        user = db.query(User).filter(User.email == email_clean).first()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    if not is_demo_req and not verify_password(data.password, user.hashed_password or ""):
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
     # Any customer can log in to the studio for trial!

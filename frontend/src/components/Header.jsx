@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ShieldCheck, UserCheck, RefreshCw, Sparkles, BookOpen,
-  Layers, BarChart3, Clock, Home, Database, CreditCard, LogIn, User
+  Layers, BarChart3, Clock, Home, Database, CreditCard, LogIn, User, Zap
 } from 'lucide-react';
 
 export default function Header({
@@ -15,12 +15,13 @@ export default function Header({
   isResetting,
   currentUser,
   onOpenAuthModal,
-  onLogout
+  onLogout,
+  onQuickDemoLogin
 }) {
   const roles = [
     { id: 'creator', label: 'Creator', name: 'Alex Vance', icon: Sparkles },
     { id: 'manager', label: 'Manager', name: 'Jordan Lee', icon: ShieldCheck },
-    { id: 'reviewer', label: 'Reviewer', name: 'Morgan Reed', icon: UserCheck }
+    { id: 'reviewer', label: 'Compliance', name: 'Morgan Reed', icon: UserCheck }
   ];
 
   return (
@@ -113,7 +114,12 @@ export default function Header({
                   return (
                     <button
                       key={r.id}
-                      onClick={() => setActiveRole(r.id)}
+                      onClick={() => {
+                        setActiveRole(r.id);
+                        if (currentUser && currentUser.email?.endsWith('@sentinel.ai') && onQuickDemoLogin) {
+                          onQuickDemoLogin(r.id);
+                        }
+                      }}
                       title={`${r.label} (${r.name})`}
                       className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         isActive
@@ -196,13 +202,23 @@ export default function Header({
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => onOpenAuthModal && onOpenAuthModal('login')}
-                className="glass-button-primary flex items-center space-x-1 px-3.5 py-1.5 text-gray-950 font-bold rounded-xl text-xs shadow-md transition cursor-pointer"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In</span>
-              </button>
+              <div className="flex items-center space-x-1.5">
+                <button
+                  onClick={() => onQuickDemoLogin ? onQuickDemoLogin('creator') : onOpenAuthModal && onOpenAuthModal('login')}
+                  className="hidden sm:flex items-center space-x-1 px-3 py-1.5 text-xs text-amber-300 hover:text-white bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 rounded-xl transition font-bold cursor-pointer"
+                  title="One-click log in as demo account (Password: demo123)"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  <span>Demo Login</span>
+                </button>
+                <button
+                  onClick={() => onOpenAuthModal && onOpenAuthModal('login')}
+                  className="glass-button-primary flex items-center space-x-1 px-3.5 py-1.5 text-gray-950 font-bold rounded-xl text-xs shadow-md transition cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Sign In</span>
+                </button>
+              </div>
             )}
 
             {/* Public Site Link */}

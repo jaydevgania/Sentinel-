@@ -200,8 +200,8 @@ def build_pdf(filename="Sentinel_Round_3_Final_Submission.pdf"):
     # Metadata & Links Box
     meta_data = [
         [
-            Paragraph("<b>Team:</b> SENTINEL ARK<br/>Jay Devgania (Lead / AI), Shiv Kumbhar (Backend),<br/>Dharmi Gor (Frontend), Hazel Kanabar (QA &amp; Research)", table_cell_style),
-            Paragraph("<b>Production Link:</b> <font color='#0284c7'>https://sentinel-kappa-silk.vercel.app</font><br/><b>GitHub Repository:</b> <font color='#0284c7'>https://github.com/jaydevgania/Sentinel-</font><br/><b>Extension:</b> Chrome Manifest V3 (Unpacked in repo / Simulator in Web)", table_cell_style)
+            Paragraph("<b>Team:</b> SENTINEL ARK<br/>Jay Devgania (Lead / AI), Shiv Kumbhar (Backend),<br/>Dharmi Gor (Frontend), Hazel Kanabar (QA &amp; Research)<br/><b>Judge Demo Accounts (Password: <code>demo123</code>):</b><br/>Creator: <code>creator@sentinel.ai</code> &bull; Manager: <code>manager@sentinel.ai</code> &bull; Legal: <code>compliance@sentinel.ai</code>", table_cell_style),
+            Paragraph("<b>Production Link:</b> <font color='#0284c7'>https://sentinel-kappa-silk.vercel.app</font><br/><b>GitHub Repository:</b> <font color='#0284c7'>https://github.com/jaydevgania/Sentinel-</font><br/><b>Inline Companion:</b> Manifest V3 (/extension) + Web Simulator<br/><b>Workflows:</b> Enabled for Creator, Manager &amp; Legal", table_cell_style)
         ]
     ]
     meta_table = Table(meta_data, colWidths=[260, 272])

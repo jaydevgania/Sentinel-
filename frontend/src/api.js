@@ -99,6 +99,35 @@ export async function registerUser(data) {
   return result;
 }
 
+export async function demoLogin(role = 'creator') {
+  try {
+    const res = await fetch(`${BASE_URL}/auth/demo-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    });
+    if (res.ok) {
+      const result = await res.json();
+      if (result.token) {
+        setStoredToken(result.token);
+        setStoredUser(result.user);
+      }
+      return result;
+    }
+  } catch (e) {
+    console.warn('Direct demo-login endpoint failed, attempting fallback login', e);
+  }
+  // Fallback direct login
+  const emailMap = {
+    creator: 'creator@sentinel.ai',
+    manager: 'manager@sentinel.ai',
+    compliance: 'compliance@sentinel.ai',
+    reviewer: 'compliance@sentinel.ai'
+  };
+  const email = emailMap[role] || 'creator@sentinel.ai';
+  return loginUser(email, 'demo123');
+}
+
 export async function loginUser(email, password) {
   const res = await fetch(`${BASE_URL}/auth/login`, {
     method: 'POST',

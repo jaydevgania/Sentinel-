@@ -14,9 +14,10 @@ import AuthModal from './components/AuthModal';
 import UploadGuidelinesModal from './components/UploadGuidelinesModal';
 import VisualInspectionViewer from './components/VisualInspectionViewer';
 import CompanionSimulatorModal from './components/CompanionSimulatorModal';
+import RoleWorkflowGuide from './components/RoleWorkflowGuide';
 import { useAuth } from './context/AuthContext';
 import {
-  fetchWorkspace, resetDemo, submitReview, getReview, fetchQueue
+  fetchWorkspace, resetDemo, submitReview, getReview, fetchQueue, demoLogin
 } from './api';
 
 export default function App() {
@@ -84,6 +85,16 @@ export default function App() {
     setAuthModalMode(mode);
     setAuthSelectedPlan(plan);
     setAuthModalOpen(true);
+  };
+
+  const handleQuickDemoLogin = async (role) => {
+    try {
+      await demoLogin(role);
+      if (refreshProfile) await refreshProfile();
+      setActiveRole(role === 'compliance' ? 'reviewer' : role);
+    } catch (err) {
+      console.error('Demo login error:', err);
+    }
   };
 
   const handleSelectSample = (sample) => {
@@ -170,13 +181,27 @@ export default function App() {
         currentUser={currentUser}
         onOpenAuthModal={handleOpenAuth}
         onLogout={handleLogout}
+        onQuickDemoLogin={handleQuickDemoLogin}
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Active Role Workflow Guide Banner (All Roles Enabled) */}
+        <RoleWorkflowGuide
+          activeRole={activeRole}
+          setActiveRole={setActiveRole}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          queueCount={queueCount}
+          onOpenGuidelinesModal={() => setGuidelinesModalOpen(true)}
+          onOpenCompanionModal={() => setCompanionModalOpen(true)}
+          onQuickDemoLogin={handleQuickDemoLogin}
+          currentUser={currentUser}
+        />
+
         {/* Customer Welcome & Identity Banner */}
         {currentUser && (
-          <div className="mb-6 p-4 rounded-3xl glass-panel border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
+          <div className="p-4 rounded-3xl glass-panel border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
             <div className="flex items-center space-x-3.5">
               {currentUser.picture ? (
                 <img
@@ -195,6 +220,11 @@ export default function App() {
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                     Active Workspace
                   </span>
+                  {currentUser.email?.endsWith('@sentinel.ai') && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                      Judge Demo Account (PWD: demo123)
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
                   <span>Work Email: <strong className="text-slate-200 font-mono">{currentUser.email}</strong></span>
