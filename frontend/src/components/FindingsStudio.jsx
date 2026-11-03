@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import {
   CheckCircle2, AlertCircle, XCircle, HelpCircle, ArrowRight,
-  ShieldAlert, ShieldCheck, Sparkles, Send, Edit3, Lock, Eye, RefreshCw
+  ShieldAlert, ShieldCheck, Sparkles, Send, Edit3, Lock, Eye, RefreshCw,
+  Award, Copy, Check, Filter, Search, Zap
 } from 'lucide-react';
 import { patchFinding, submitForApproval } from '../api';
+import ComplianceCertificateModal from './ComplianceCertificateModal';
 
 export default function FindingsStudio({
   review,
@@ -18,11 +20,68 @@ export default function FindingsStudio({
   const [customEditText, setCustomEditText] = useState('');
   const [submittingApproval, setSubmittingApproval] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
+  const [certificateModalOpen, setCertificateModalOpen] = useState(false);
+  const [severityFilter, setSeverityFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [copiedRevised, setCopiedRevised] = useState(false);
 
   const findings = review.findings || [];
   const bodyText = review.body_text || '';
   const score = review.compliance_score ?? 100;
   const breakdown = review.category_breakdown || {};
+
+  // Compute revised text with accepted/edited replacements applied
+  const getRevisedText = () => {
+    if (!findings.length) return bodyText;
+    let res = bodyText;
+    const sorted = [...findings].sort((a, b) => b.span_start - a.span_start);
+    sorted.forEach(f => {
+      const replacement = f.status === 'accepted' ? f.suggestion : f.status === 'edited' ? f.user_edit : null;
+      if (replacement && f.span_start >= 0 && f.span_end <= res.length) {
+        res = res.substring(0, f.span_start) + replacement + res.substring(f.span_end);
+      }
+    });
+    return res;
+  };
+
+  const handleCopyRevisedText = () => {
+    const revised = getRevisedText();
+    navigator.clipboard.writeText(revised);
+    setCopiedRevised(true);
+    setTimeout(() => setCopiedRevised(false), 2000);
+  };
+
+  const openWithFixes = findings.filter(f => f.status === 'open' && f.suggestion);
+
+  const handleAcceptAllSafe = async () => {
+    if (!openWithFixes.length) return;
+    try {
+      setActionLoading('all');
+      for (const f of openWithFixes) {
+        await patchFinding(f.id, 'accepted');
+      }
+      onReviewUpdated();
+    } catch (err) {
+      alert(`Batch fix error: ${err.message}`);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Filtered findings
+  const filteredFindings = findings.filter(f => {
+    if (severityFilter !== 'all' && f.severity?.toLowerCase() !== severityFilter) {
+      return false;
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchIssue = (f.issue || '').toLowerCase().includes(q);
+      const matchExplanation = (f.explanation || '').toLowerCase().includes(q);
+      const matchRule = (f.rule_id || f.source_id || '').toLowerCase().includes(q);
+      if (!matchIssue && !matchExplanation && !matchRule) return false;
+    }
+    return true;
+  });
 
   // Status color helpers
   const getSeverityBadge = (severity) => {
@@ -203,15 +262,26 @@ export default function FindingsStudio({
           </div>
         </div>
 
-        {/* AI & Service Disclosure Label */}
-        <div className="glass-panel-subtle border border-white/10 rounded-2xl p-3.5 w-full md:max-w-md text-xs">
-          <div className="flex items-center space-x-2 text-amber-400 font-bold mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>AI Disclosure &amp; Privacy Trace</span>
+        {/* AI & Service Disclosure Label & Certificate Trigger */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+          <div className="glass-panel-subtle border border-white/10 rounded-2xl p-3.5 w-full md:max-w-md text-xs">
+            <div className="flex items-center space-x-2 text-amber-400 font-bold mb-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Disclosure &amp; Privacy Trace</span>
+            </div>
+            <p className="text-slate-300 text-[11px] leading-relaxed">
+              {review.ai_disclosure || 'Processed with Grounded Review Engine.'}
+            </p>
           </div>
-          <p className="text-slate-300 text-[11px] leading-relaxed">
-            {review.ai_disclosure || 'Processed with Grounded Review Engine.'}
-          </p>
+
+          <button
+            onClick={() => setCertificateModalOpen(true)}
+            className="glass-button-primary px-3.5 py-3 rounded-2xl text-xs font-bold text-gray-950 flex sm:flex-col items-center justify-center gap-1 shadow-lg shadow-amber-500/20 hover:scale-[1.02] transition cursor-pointer shrink-0"
+            title="Generate and view printable Compliance Certificate with SHA-256 stamp"
+          >
+            <Award className="w-4 h-4 text-gray-950" />
+            <span className="text-[11px] font-extrabold whitespace-nowrap">View Certificate</span>
+          </button>
         </div>
       </div>
 
@@ -264,37 +334,93 @@ export default function FindingsStudio({
             </div>
 
             {/* Action Bar for Creator */}
-            <div className="mt-4 pt-4 border-t border-gray-800 flex items-center justify-between">
+            <div className="mt-4 pt-4 border-t border-gray-800 flex flex-wrap items-center justify-between gap-2">
               <div className="text-xs text-gray-400">
                 Review Status: <span className="font-semibold text-amber-400 uppercase">{review.status}</span>
               </div>
 
-              {review.status !== 'approved' && review.status !== 'in_review' ? (
+              <div className="flex items-center space-x-2">
                 <button
-                  onClick={handleSubmitReview}
-                  disabled={submittingApproval}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-950 px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-amber-900/20 transition disabled:opacity-50"
+                  onClick={handleCopyRevisedText}
+                  className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition cursor-pointer"
+                  title="Copy revised copy with all accepted and edited suggestions applied"
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{submittingApproval ? 'Submitting...' : 'Submit for Manager Approval'}</span>
+                  {copiedRevised ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                  <span>{copiedRevised ? 'Copied Revised Copy!' : 'Copy Revised Copy'}</span>
                 </button>
-              ) : (
-                <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-medium bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{review.status === 'approved' ? 'Approved by Manager' : 'Submitted & Waiting in Queue'}</span>
-                </div>
-              )}
+
+                {review.status !== 'approved' && review.status !== 'in_review' ? (
+                  <button
+                    onClick={handleSubmitReview}
+                    disabled={submittingApproval}
+                    className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-950 px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-amber-900/20 transition disabled:opacity-50 cursor-pointer"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{submittingApproval ? 'Submitting...' : 'Submit for Manager Approval'}</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-medium bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>{review.status === 'approved' ? 'Approved by Manager' : 'Submitted & Waiting in Queue'}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Right Panel: Findings Cards & Grounding Trace */}
-        <div className="lg:col-span-5 space-y-3 max-h-[640px] overflow-y-auto pr-1">
-          <div className="flex items-center justify-between mb-1">
+        <div className="lg:col-span-5 space-y-3 max-h-[680px] overflow-y-auto pr-1">
+          {/* Header & Quick Batch Action */}
+          <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Findings ({findings.length})
+              Findings ({filteredFindings.length}{filteredFindings.length !== findings.length ? ` of ${findings.length}` : ''})
             </h3>
             <span className="text-[11px] text-gray-500">Human Decision Required</span>
+          </div>
+
+          {/* 1-Click Accept All Safe Fixes */}
+          {openWithFixes.length > 0 && (
+            <button
+              onClick={handleAcceptAllSafe}
+              disabled={actionLoading === 'all'}
+              className="glass-button-primary w-full py-2 px-3 rounded-xl text-xs font-bold text-gray-950 flex items-center justify-center space-x-1.5 shadow-md cursor-pointer transition active:scale-[0.99]"
+              title="Apply all intent-guarded suggestions with 1 click"
+            >
+              <Zap className="w-3.5 h-3.5 fill-gray-950" />
+              <span>{actionLoading === 'all' ? 'Applying Safe Fixes...' : `Accept All Safe Fixes (${openWithFixes.length})`}</span>
+            </button>
+          )}
+
+          {/* Live Search & Filter Bar */}
+          <div className="space-y-2 bg-white/5 p-2.5 rounded-2xl border border-white/10">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search findings by issue, rule, or statute..."
+                className="w-full bg-black/40 border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-amber-400/50"
+              />
+            </div>
+
+            <div className="flex items-center space-x-1 text-[10px]">
+              <span className="text-slate-400 px-1 font-bold">Severity:</span>
+              {['all', 'high', 'medium', 'low'].map((sev) => (
+                <button
+                  key={sev}
+                  onClick={() => setSeverityFilter(sev)}
+                  className={`px-2 py-0.5 rounded-lg font-bold capitalize transition cursor-pointer ${
+                    severityFilter === sev
+                      ? 'bg-amber-500 text-gray-950 shadow-sm'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {sev}
+                </button>
+              ))}
+            </div>
           </div>
 
           {findings.length === 0 ? (
@@ -305,8 +431,12 @@ export default function FindingsStudio({
                 This copy fully complies with Nimbus Coffee tone, terminology, facts, and accessibility guidelines.
               </p>
             </div>
+          ) : filteredFindings.length === 0 ? (
+            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 text-center text-xs text-slate-400">
+              No findings match current filter query.
+            </div>
           ) : (
-            findings.map((f) => {
+            filteredFindings.map((f) => {
               const isSelected = selectedFindingId === f.id;
               const isEditing = editingFindingId === f.id;
               const isLoading = actionLoading === f.id;
@@ -467,6 +597,13 @@ export default function FindingsStudio({
           )}
         </div>
       </div>
+
+      {/* Official Pre-Publication Compliance Certificate Modal */}
+      <ComplianceCertificateModal
+        isOpen={certificateModalOpen}
+        onClose={() => setCertificateModalOpen(false)}
+        review={review}
+      />
     </div>
   );
 }

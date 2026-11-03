@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Clock, CheckCircle, AlertTriangle, MessageSquare, ArrowRight,
-  ShieldCheck, ShieldAlert, FileText, ChevronRight, Hash, Check, X
+  ShieldCheck, ShieldAlert, FileText, ChevronRight, Hash, Check, X, Copy, Zap
 } from 'lucide-react';
 import { fetchQueue, fetchHistory, recordDecision, verifyAuditChain } from '../api';
 
@@ -14,6 +14,8 @@ export default function ReviewQueueScreen({ activeRole, onSelectReview }) {
   const [decisionNotes, setDecisionNotes] = useState('');
   const [submittingDecision, setSubmittingDecision] = useState(false);
   const [auditStatus, setAuditStatus] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [copiedText, setCopiedText] = useState(false);
 
   const loadQueue = async () => {
     try {
@@ -114,22 +116,48 @@ export default function ReviewQueueScreen({ activeRole, onSelectReview }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Queue List */}
         <div className="lg:col-span-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-            Pending Submissions ({queue.length})
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              Submissions ({queue.length})
+            </h3>
+            {/* Filter Chips */}
+            <div className="flex items-center space-x-1 text-[10px]">
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'in_review', label: 'Pending' },
+                { id: 'approved', label: 'Approved' }
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setStatusFilter(f.id)}
+                  className={`px-2 py-0.5 rounded-lg font-bold transition cursor-pointer ${
+                    statusFilter === f.id
+                      ? 'bg-amber-500 text-gray-950 shadow-sm'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {loading ? (
             <div className="text-center py-10 text-gray-400 text-xs">Loading queue...</div>
-          ) : queue.length === 0 ? (
+          ) : queue.filter(item => statusFilter === 'all' || item.status === statusFilter).length === 0 ? (
             <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center">
               <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-              <h4 className="text-sm font-bold text-white">Queue is Clear</h4>
+              <h4 className="text-sm font-bold text-white">No Submissions Found</h4>
               <p className="text-xs text-gray-400 mt-1">
-                No submissions waiting for review. Use Review Studio to submit copy!
+                {statusFilter === 'all'
+                  ? 'No submissions waiting for review. Use Review Studio to submit copy!'
+                  : `No submissions with status '${statusFilter}'.`}
               </p>
             </div>
           ) : (
-            queue.map((item) => {
+            queue
+              .filter(item => statusFilter === 'all' || item.status === statusFilter)
+              .map((item) => {
               const isSelected = selectedReviewId === item.review_id;
               return (
                 <div
@@ -210,7 +238,21 @@ export default function ReviewQueueScreen({ activeRole, onSelectReview }) {
                 <div className="bg-gray-950 p-3 rounded-xl border border-gray-800">
                   <div className="text-[10px] uppercase font-bold text-gray-400 mb-2 flex items-center justify-between">
                     <span>2. Proposed Compliant Copy</span>
-                    <span className="text-emerald-400">Accepted Edits</span>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(historyData.revised_text);
+                          setCopiedText(true);
+                          setTimeout(() => setCopiedText(false), 2000);
+                        }}
+                        className="text-amber-400 hover:text-amber-300 flex items-center space-x-1 cursor-pointer font-bold lowercase"
+                        title="Copy compliant text to clipboard"
+                      >
+                        <Copy className="w-3 h-3" />
+                        <span>{copiedText ? 'copied!' : 'copy'}</span>
+                      </button>
+                      <span className="text-emerald-400">Accepted Edits</span>
+                    </div>
                   </div>
                   <p className="text-xs text-emerald-200 font-sans leading-relaxed whitespace-pre-wrap">
                     {historyData.revised_text}

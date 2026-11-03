@@ -52,6 +52,15 @@ export default function App() {
   const [isResetting, setIsResetting] = useState(false);
   const [queueCount, setQueueCount] = useState(0);
 
+  // Toast Notification System
+  const [toast, setToast] = useState(null);
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast((prev) => (prev?.message === message ? null : prev));
+    }, 3500);
+  };
+
   // Initialize
   const initializeApp = async () => {
     try {
@@ -89,11 +98,13 @@ export default function App() {
 
   const handleQuickDemoLogin = async (role) => {
     try {
-      await demoLogin(role);
+      const res = await demoLogin(role);
       if (refreshProfile) await refreshProfile();
       setActiveRole(role === 'compliance' ? 'reviewer' : role);
+      showToast(`1-Click Demo Login: ${res.user?.name || role} (${res.user?.role || role})`);
     } catch (err) {
       console.error('Demo login error:', err);
+      showToast(`Login failed: ${err.message}`, 'error');
     }
   };
 
@@ -104,11 +115,12 @@ export default function App() {
     setBodyText(sample.text);
     setJurisdiction(sample.jurisdiction || 'global');
     setImageMetadata(sample.metadata || (sample.id === 'sample-5' ? { is_image: true, foreground_color: '#8A9BA8', background_color: '#FFFFFF' } : null));
+    showToast(`Loaded ${sample.title} (${sample.jurisdiction || 'Global'})`);
   };
 
   const handleCheckContent = async () => {
     if (!bodyText.trim()) {
-      alert('Please enter or select content to review.');
+      showToast('Please enter or select content to review.', 'warning');
       return;
     }
 
@@ -136,12 +148,26 @@ export default function App() {
       // Update queue count
       const q = await fetchQueue();
       setQueueCount(q.length);
+      showToast(`Analysis complete: Score ${enriched.compliance_score}/100 &bull; ${enriched.findings?.length || 0} findings`);
     } catch (err) {
-      alert(`Review check failed: ${err.message}`);
+      showToast(`Review check failed: ${err.message}`, 'error');
     } finally {
       setChecking(false);
     }
   };
+
+  // Keyboard shortcut: Ctrl+Enter or Cmd+Enter to run check
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        if (activeTab === 'review' && !checking && bodyText.trim()) {
+          handleCheckContent();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, checking, bodyText, channel, purpose, jurisdiction, imageMetadata, currentUser]);
 
   const handleReviewUpdated = async () => {
     if (currentReview) {
@@ -463,6 +489,14 @@ export default function App() {
         isOpen={companionModalOpen}
         onClose={() => setCompanionModalOpen(false)}
       />
+
+      {/* Floating Glassmorphic Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2.5 px-4 py-3 rounded-2xl glass-panel border border-amber-500/40 shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+          <span className="text-xs font-bold text-white tracking-wide">{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 }
